@@ -366,10 +366,7 @@ footer{border-top:1px solid rgba(255,255,255,.1);padding:34px 0 60px;color:#7C86
     <span class="marcador" id="marcador"></span>
     <div class="vozbar">
       <button class="chip" id="chipHabla" data-on="no" aria-pressed="false"><span class="punto"></span>Que me lea</button>
-      <select class="selVoz" id="selVoz" aria-label="Voz del conductor">
-        <option value="ar-tomas">Tomás · Argentina</option>
-        <option value="ar-elena">Elena · Argentina</option>
-      </select>
+      <select class="selVoz" id="selVoz" aria-label="Voz" hidden></select>
       <button class="chip" id="chipEscucha" data-on="no" aria-pressed="false"><span class="punto"></span>Contesto hablando</button>
       <button class="cerrar" id="btnCerrar">Salir</button>
     </div>
@@ -1042,16 +1039,7 @@ const MIC_POSIBLE = !!SRClass;
 const AYUDA_LOCAL = "Chrome no puede recordar el permiso de micrófono en archivos abiertos con doble clic: te lo va a preguntar cada vez. Para que quede fijo, abrí una terminal en la carpeta, corré  python -m http.server 8000  y entrá a http://localhost:8000.";
 let vozSalida = false, vozEntrada = false;
 let voces = [], vozEs = null, rec = null, recActivo = false, quieroEscuchar = false, tEscucha = null;
-let vozId = "ar-tomas", ttsGen = 0, audioVoz = null, wsVoz = null, avisoNeuralOk = false;
 const VOZ_GUARDADA = "ahora-caigo-voz";
-const EDGE_TTS = {
-  token: "6A5AA1D4EAFF4E9FB37E23D68491D6F4",
-  gec: "1-142.0.3595",
-  urls: [
-    "wss://api.msedgeservices.com/tts/cognitiveservices/websocket/v1",
-    "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1"
-  ]
-};
 
 function puntuarVoz(v){
   const n = ((v.name||"")+" "+(v.lang||"")).toLowerCase();
@@ -1060,228 +1048,88 @@ function puntuarVoz(v){
   else if(/es[-_](419|uy|cl|mx|us|co|pe)/i.test(v.lang)) p += 45;
   else if(/^es/i.test(v.lang) || /spanish|español/i.test(n)) p += 20;
   else return -1;
-  if(/male|hombre|raul|pablo|jorge|tomas|tomás|diego|carlos|santiago|mateo|gonzalo|antonio/i.test(n)) p += 55;
-  if(/female|mujer|sabina|helena|elena|lucia|lucía|laura|paulina|dalia|maria|maría|catalina|sofia|sofía/i.test(n)) p -= 35;
   if(/natural|neural|online|google|premium/i.test(n)) p += 12;
-  if(/es[-_]es/i.test(v.lang) && !/argentin/i.test(n)) p -= 25;
   return p;
 }
-function armarSelVoz(){
-  const sel = $("#selVoz");
-  if(!sel) return;
-  const previa = sel.value || localStorage.getItem(VOZ_GUARDADA) || "ar-tomas";
-  const extra = voces.map(v=>'<option value="pc:'+v.name.replace(/"/g,"")+'">'+v.name+" · PC</option>").join("");
-  sel.innerHTML =
-    '<option value="ar-tomas">Tomás · Argentina</option>'+
-    '<option value="ar-elena">Elena · Argentina</option>'+ extra;
-  sel.value = [...sel.options].some(o=>o.value===previa) ? previa : "ar-tomas";
-  aplicarVoz(sel.value, true);
-}
-function aplicarVoz(id, silencioso){
-  vozId = id || "ar-tomas";
-  if(vozId.startsWith("pc:")) vozEs = voces.find(v=>v.name === vozId.slice(3)) || null;
-  try{ localStorage.setItem(VOZ_GUARDADA, vozId); }catch(e){}
-  if(!silencioso && vozSalida) hablar("Esta voz, de acá en más.");
-}
 function cargarVoces(){
-  if(!TTS){ armarSelVoz(); return; }
+  if(!TTS) return;
   voces = (TTS.getVoices() || []).filter(v=>puntuarVoz(v) >= 0)
     .sort((a,b)=>puntuarVoz(b)-puntuarVoz(a));
-  armarSelVoz();
+  const sel = $("#selVoz");
+  if(!voces.length){
+    vozEs = (TTS.getVoices()||[])[0] || null;
+    if(sel) sel.hidden = true;
+    return;
+  }
+  const guardada = localStorage.getItem(VOZ_GUARDADA);
+  vozEs = voces.find(v=>v.name === guardada) || voces[0];
+  if(sel){
+    sel.hidden = false;
+    sel.innerHTML = voces.map(v=>'<option value="'+v.name.replace(/"/g,"")+'">'+v.name+"</option>").join("");
+    sel.value = (guardada && voces.some(v=>v.name===guardada)) ? guardada : vozEs.name;
+  }
 }
-cargarVoces();
-if(TTS) TTS.addEventListener("voiceschanged", cargarVoces);
+if(TTS){ cargarVoces(); TTS.addEventListener("voiceschanged", cargarVoces); }
 
-function sha256hex(ascii){
-  function rr(v,n){ return (v>>>n) | (v<<(32-n)); }
-  const pow = Math.pow, max = pow(2,32);
-  let i, j, hash = sha256hex.h, k = sha256hex.k;
-  if(!hash){
-    hash = sha256hex.h = []; k = sha256hex.k = [];
-    const comp = {};
-    for(let cand=2, n=0; n<64; cand++){
-      if(!comp[cand]){
-        for(i=0;i<313;i+=cand) comp[i]=cand;
-        hash[n] = (pow(cand,.5)*max)|0;
-        k[n++] = (pow(cand,1/3)*max)|0;
-      }
-    }
-  }
-  let msg = ascii + "\x80";
-  while(msg.length%64 - 56) msg += "\x00";
-  const words = [], bitLen = ascii.length*8;
-  for(i=0;i<msg.length;i++) words[i>>2] |= msg.charCodeAt(i) << ((3-i)%4)*8;
-  words[words.length] = (bitLen/max)|0;
-  words[words.length] = bitLen;
-  hash = hash.slice();
-  for(j=0;j<words.length;){
-    const w = words.slice(j, j+=16), old = hash.slice();
-    hash = hash.slice(0,8);
-    for(i=0;i<64;i++){
-      const w15=w[i-15], w2=w[i-2], a=hash[0], e=hash[4];
-      const t1 = hash[7] + (rr(e,6)^rr(e,11)^rr(e,25)) + ((e&hash[5])^((~e)&hash[6])) + k[i] +
-        (w[i] = (i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
-      const t2 = (rr(a,2)^rr(a,13)^rr(a,22)) + ((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
-      hash = [(t1+t2)|0].concat(hash);
-      hash[4] = (hash[4]+t1)|0;
-    }
-    for(i=0;i<8;i++) hash[i] = (hash[i]+old[i])|0;
-  }
-  let out = "";
-  for(i=0;i<8;i++) for(j=3;j+1;j--){ const b=(hash[i]>>(j*8))&255; out += (b<16?"0":"")+b.toString(16); }
-  return out.toUpperCase();
+let ttsDespierta = false;
+function despertarTTS(){
+  if(!TTS) return;
+  cargarVoces();
+  try{ TTS.resume(); }catch(e){}
 }
-async function secMsGec(){
-  const ticks = Math.floor(Date.now()/1000) + 11644473600;
-  const rounded = ticks - (ticks % 300);
-  const raw = (BigInt(rounded) * 10000000n).toString() + EDGE_TTS.token;
-  if(globalThis.crypto && crypto.subtle){
-    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
-    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("").toUpperCase();
-  }
-  return sha256hex(raw);
-}
-function xmlEsc(t){
-  return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-function uuid4(){
-  return "xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c=>{
-    const r = Math.random()*16|0;
-    return (c==="x"?r:(r&0x3|0x8)).toString(16);
-  });
-}
-function buscarBytes(arr, needle){
-  for(let i=0;i<=arr.length-needle.length;i++){
-    let ok=true;
-    for(let j=0;j<needle.length;j++) if(arr[i+j]!==needle[j]){ ok=false; break; }
-    if(ok) return i;
-  }
-  return -1;
-}
-function sintetizarAr(texto, voz, rate){
-  const pct = Math.round(((rate || 1.08) - 1) * 100);
-  const ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="es-AR">'+
-    '<voice name="'+voz+'"><prosody rate="'+(pct>=0?"+":"")+pct+'%" pitch="+0Hz">'+
-    xmlEsc(texto)+"</prosody></voice></speak>";
-  const needle = new TextEncoder().encode("Path:audio\r\n");
-  return (async ()=>{
-    const gec = await secMsGec();
-    const reqId = uuid4();
-    let lastErr = new Error("sin audio");
-    for(const base of EDGE_TTS.urls){
-      try{
-        const url = base+"?TrustedClientToken="+EDGE_TTS.token+
-          "&Ocp-Apim-Subscription-Key="+EDGE_TTS.token+
-          "&Sec-MS-GEC="+gec+"&Sec-MS-GEC-Version="+EDGE_TTS.gec+
-          "&ConnectionId="+reqId;
-        const chunks = await new Promise((resolve, reject)=>{
-          const ws = new WebSocket(url);
-          wsVoz = ws;
-          ws.binaryType = "arraybuffer";
-          const acc = [];
-          const to = setTimeout(()=>{ try{ ws.close(); }catch(e){} reject(new Error("timeout")); }, 12000);
-          ws.onopen = ()=>{
-            const ts = new Date().toUTCString();
-            ws.send("X-Timestamp:"+ts+"\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n"+
-              '{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":false,"wordBoundaryEnabled":false},"outputFormat":"audio-24khz-48kbitrate-mono-mp3"}}}}');
-            ws.send("X-RequestId:"+reqId+"\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:"+ts+"\r\nPath:ssml\r\n\r\n"+ssml);
-          };
-          ws.onmessage = ev=>{
-            if(typeof ev.data === "string"){
-              if(ev.data.indexOf("Path:turn.end")>=0) ws.close();
-              return;
-            }
-            const u8 = new Uint8Array(ev.data);
-            const i = buscarBytes(u8, needle);
-            if(i>=0) acc.push(u8.slice(i+needle.length));
-          };
-          ws.onerror = ()=>{ try{ ws.close(); }catch(e){} reject(new Error("ws")); };
-          ws.onclose = ()=>{
-            clearTimeout(to);
-            if(wsVoz===ws) wsVoz=null;
-            resolve(acc);
-          };
-        });
-        const n = chunks.reduce((a,c)=>a+c.length,0);
-        if(!n) throw lastErr;
-        const out = new Uint8Array(n);
-        let off=0;
-        chunks.forEach(c=>{ out.set(c, off); off+=c.length; });
-        return out;
-      }catch(e){ lastErr = e; }
-    }
-    throw lastErr;
-  })();
-}
-function rioplatense(t){
-  let s = String(t).replace(/\b[Yy]\b/g, "i");
-  s = s.replace(/ll/g,"sh").replace(/Ll/g,"Sh").replace(/LL/g,"SH");
-  s = s.replace(/\b[Yy](?=[aeiouáéíóú])/g, "sh");
-  s = s.replace(/([aeiouáéíóú])y([aeiouáéíóú])/gi, "$1sh$2");
-  s = s.replace(/z/g,"s").replace(/Z/g,"S");
-  s = s.replace(/c([eiéí])/g,"s$1").replace(/C([EeIiÉéÍí])/g,"S$1");
-  return s;
-}
-function pararHabla(){
-  try{ TTS && TTS.cancel(); }catch(e){}
-  if(wsVoz){ try{ wsVoz.onclose=null; wsVoz.onerror=null; wsVoz.close(); }catch(e){} wsVoz=null; }
-  if(audioVoz){
-    try{ audioVoz.onended=null; audioVoz.onerror=null; audioVoz.pause(); audioVoz.src=""; }catch(e){}
-    audioVoz=null;
-  }
-}
-function reproducirMp3(bytes){
-  return new Promise((resolve, reject)=>{
-    const url = URL.createObjectURL(new Blob([bytes], {type:"audio/mpeg"}));
-    const a = new Audio(url);
-    audioVoz = a;
-    const fin = ok=>{
-      URL.revokeObjectURL(url);
-      if(audioVoz===a) audioVoz=null;
-      ok?resolve():reject();
-    };
-    a.onended = ()=> fin(true);
-    a.onerror = ()=> fin(false);
-    a.play().catch(()=> fin(false));
-  });
-}
-function hablarSistema(texto, rate, fin){
-  if(!TTS){ setTimeout(fin, 120); return; }
-  const u = new SpeechSynthesisUtterance(texto);
-  u.lang = "es-AR";
-  if(vozId.startsWith("pc:") && vozEs) u.voice = vozEs;
-  else {
-    const ar = voces.find(v=>/es[-_]AR/i.test(v.lang) || /argentin/i.test(v.name||""));
-    if(ar) u.voice = ar;
-  }
-  u.rate = rate || 1.12;
-  u.pitch = 1.08;
-  let cerrado = false;
-  const done = ()=>{ if(cerrado) return; cerrado = true; fin && fin(); };
-  u.onend = done; u.onerror = done;
-  try{ TTS.speak(u); }catch(e){ done(); return; }
-  setTimeout(done, Math.min(900 + texto.length*90, 16000));
+function calentarTTS(luego){
+  if(ttsDespierta){ luego(); return; }
+  ttsDespierta = true;
+  try{
+    const u = new SpeechSynthesisUtterance(".");
+    u.volume = 0; u.rate = 2; u.lang = (vozEs && vozEs.lang) || "es-AR";
+    if(vozEs) u.voice = vozEs;
+    let listo = false;
+    const fin = ()=>{ if(listo) return; listo = true; luego(); };
+    u.onend = fin; u.onerror = fin;
+    TTS.speak(u);
+    setTimeout(fin, 450);
+  }catch(e){ luego(); }
 }
 function hablar(texto, cb, rate){
-  if(!vozSalida){ setTimeout(()=>cb&&cb(), 120); return; }
-  ttsGen++;
-  const gen = ttsGen;
-  pararHabla();
-  const fin = ()=>{ if(gen!==ttsGen) return; cb && cb(); };
-  const neural = (vozId==="ar-tomas" || vozId==="ar-elena");
-  if(!neural){ hablarSistema(texto, rate, fin); return; }
-  const voz = vozId==="ar-tomas" ? "es-AR-TomasNeural" : "es-AR-ElenaNeural";
-  sintetizarAr(texto, voz, rate).then(bytes=>{
-    if(gen!==ttsGen) return;
-    if(!avisoNeuralOk){ avisoNeuralOk = true; aviso(""); }
-    return reproducirMp3(bytes);
-  }).then(()=>{ if(gen===ttsGen) fin(); }).catch(()=>{
-    if(gen!==ttsGen) return;
-    aviso("No llegó Tomás/Elena (hace falta internet). Sigo con acento argentino aproximado.");
-    hablarSistema(rioplatense(texto), rate, fin);
-  });
+  if(!vozSalida || !TTS){ setTimeout(()=>cb&&cb(), 120); return; }
+  despertarTTS();
+  const hayVoces = (TTS.getVoices()||[]).length;
+  const seguir = ()=>{
+    cargarVoces();
+    calentarTTS(()=> hablarAhora(texto, cb, rate));
+  };
+  if(!hayVoces){
+    let hecho = false;
+    const go = ()=>{ if(hecho) return; hecho = true; seguir(); };
+    TTS.addEventListener("voiceschanged", go);
+    setTimeout(go, 600);
+    return;
+  }
+  seguir();
 }
-function callar(){ ttsGen++; pararHabla(); }
+function hablarAhora(texto, cb, rate){
+  try{ TTS.cancel(); }catch(e){}
+  try{ TTS.resume(); }catch(e){}
+  const u = new SpeechSynthesisUtterance(texto);
+  if(vozEs){ u.voice = vozEs; u.lang = vozEs.lang || "es-AR"; } else { u.lang = "es-AR"; }
+  u.rate = rate || 1.03;
+  let cerrado = false;
+  const fin = ()=>{ if(cerrado) return; cerrado = true; cb && cb(); };
+  u.onend = fin; u.onerror = fin;
+  try{ TTS.speak(u); }catch(e){ fin(); return; }
+  try{ TTS.resume(); }catch(e){}
+  setTimeout(fin, Math.min(900 + texto.length*100, 16000));
+}
+function callar(){ if(TTS){ try{ TTS.cancel(); }catch(e){} } }
+
+function rondaViva(){ return !!(S && !S.bloqueado && S.item && $("#ronda")); }
+function guardarChips(){
+  try{
+    localStorage.setItem("ahora-caigo-habla", vozSalida?"si":"no");
+    localStorage.setItem("ahora-caigo-mic", vozEntrada?"si":"no");
+  }catch(e){}
+}
 
 function aviso(txt){ const a = $("#avisoVoz"); if(a) a.textContent = txt || ""; }
 function pintarChips(){
@@ -1290,7 +1138,7 @@ function pintarChips(){
   b.setAttribute("data-on", vozEntrada?"si":"no"); b.setAttribute("aria-pressed", vozEntrada?"true":"false");
   b.setAttribute("data-escuchando", recActivo?"si":"no");
 }
-if(!TTS){ $("#chipHabla").title = "Usa la voz argentina de Tomás (hace falta internet)"; }
+if(!TTS){ $("#chipHabla").disabled = true; $("#chipHabla").title = "Este navegador no lee en voz alta"; }
 if(!MIC_POSIBLE){
   const c = $("#chipEscucha");
   c.disabled = true;
@@ -1299,16 +1147,26 @@ if(!MIC_POSIBLE){
 }
 
 $("#chipHabla").addEventListener("click", ()=>{
-  vozSalida = !vozSalida; pintarChips();
-  if(vozSalida){ aviso(""); hablar("Listo. Te leo las consignas, con acento argentino."); }
-  else callar();
+  vozSalida = !vozSalida; pintarChips(); guardarChips();
+  if(!vozSalida){ callar(); return; }
+  aviso("");
+  despertarTTS();
+  if(rondaViva()) hablar(guion(S.item));
+  else hablar("Listo. Te leo las consignas.");
 });
-$("#selVoz").addEventListener("change", ()=> aplicarVoz($("#selVoz").value));
+$("#selVoz").addEventListener("change", ()=>{
+  const nombre = $("#selVoz").value;
+  vozEs = voces.find(v=>v.name === nombre) || vozEs;
+  try{ localStorage.setItem(VOZ_GUARDADA, nombre); }catch(e){}
+  if(vozSalida) hablar("Esta voz, de acá en más.");
+});
 $("#chipEscucha").addEventListener("click", ()=>{
   if(!SRClass){ aviso("Tu navegador no tiene dictado por voz. Probá con Chrome o Edge."); return; }
-  vozEntrada = !vozEntrada; pintarChips();
-  if(vozEntrada) aviso(ORIGEN_LOCAL ? AYUDA_LOCAL : "Cuando termine la consigna, hablá. El micrófono se enciende solo.");
-  else { pararEscucha(); aviso(""); }
+  vozEntrada = !vozEntrada; pintarChips(); guardarChips();
+  if(vozEntrada){
+    aviso(ORIGEN_LOCAL ? AYUDA_LOCAL : "Cuando termine la consigna, hablá. El micrófono se enciende solo.");
+    if(rondaViva()) abrirMicro(S.item, S.cortar);
+  }else { pararEscucha(); aviso(""); }
 });
 
 function escuchar(alRecibir, continuo, alInterim){
@@ -1405,6 +1263,7 @@ function cerrarArena(){
 }
 function abrirArena(modo, tipo){
   clearInterval(tGlobal); clearInterval(tPregunta); clearTimeout(tGuion);
+  despertarTTS();
   S = {modo, tipo, i:0, bien:0, fallos:[], pozo:0, restante:0, bloqueado:false, item:null, fichas:[], contexto:"suelto"};
   arena.setAttribute("data-abierta","si");
   document.body.style.overflow = "hidden";
@@ -1647,6 +1506,7 @@ function siguiente(){
     }
   };
   const cortar = ()=>{ callar(); arrancar(); };
+  S.cortar = cortar;
   const campo = $("#rta");
   if(campo) campo.addEventListener("input", cortar, {once:true});
   cuerpo.querySelectorAll(".opcion").forEach(b=> b.addEventListener("mousedown", cortar, {once:true}));
@@ -1885,7 +1745,12 @@ function finDe(motivo){
 }
 
 cargarStats();
+try{
+  vozSalida = localStorage.getItem("ahora-caigo-habla")==="si";
+  vozEntrada = localStorage.getItem("ahora-caigo-mic")==="si";
+}catch(e){}
 pintarChips();
+if(TTS){ cargarVoces(); document.addEventListener("click", despertarTTS, {once:true, capture:true}); }
 </script>
 </body>
 </html>
