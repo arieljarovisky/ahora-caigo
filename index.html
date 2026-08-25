@@ -1041,7 +1041,7 @@ const ORIGEN_LOCAL = (location.protocol === "file:");
 const MIC_POSIBLE = !!SRClass;
 const AYUDA_LOCAL = "Chrome no puede recordar el permiso de micrófono en archivos abiertos con doble clic: te lo va a preguntar cada vez. Para que quede fijo, abrí una terminal en la carpeta, corré  python -m http.server 8000  y entrá a http://localhost:8000.";
 let vozSalida = false, vozEntrada = false;
-let voces = [], vozEs = null, rec = null, recActivo = false;
+let voces = [], vozEs = null, rec = null, recActivo = false, quieroEscuchar = false, tEscucha = null;
 let vozId = "ar-tomas", ttsGen = 0, audioVoz = null, wsVoz = null, avisoNeuralOk = false;
 const VOZ_GUARDADA = "ahora-caigo-voz";
 const EDGE_TTS = {
@@ -1314,10 +1314,16 @@ $("#chipEscucha").addEventListener("click", ()=>{
 function escuchar(alRecibir, continuo, alInterim){
   if(!vozEntrada || !SRClass) return;
   pararEscucha();
+  quieroEscuchar = true;
+  prenderRec(alRecibir, continuo, alInterim);
+}
+function prenderRec(alRecibir, continuo, alInterim){
+  if(!quieroEscuchar || !vozEntrada || !SRClass) return;
+  if(rec){ try{ rec.onend = null; rec.onerror = null; rec.stop(); }catch(e){} rec = null; }
   try{ rec = new SRClass(); }catch(e){ return; }
   rec.lang = "es-AR";
-  rec.interimResults = !!alInterim;
-  rec.continuous = !!continuo;
+  rec.interimResults = true;
+  rec.continuous = true;
   rec.maxAlternatives = 5;
   rec.onresult = e=>{
     const r = e.results[e.results.length-1];
@@ -1327,19 +1333,35 @@ function escuchar(alRecibir, continuo, alInterim){
     alRecibir(alts);
   };
   rec.onerror = e=>{
-    recActivo = false; pintarChips();
     if(e.error === "not-allowed" || e.error === "service-not-allowed"){
-      vozEntrada = false; pintarChips();
+      quieroEscuchar = false;
+      recActivo = false; vozEntrada = false; pintarChips();
       aviso(ORIGEN_LOCAL ? AYUDA_LOCAL : "El navegador bloqueó el micrófono. Revisá el candado de la barra de direcciones y permitilo.");
-    }else if(e.error === "network"){
-      aviso("El dictado necesita conexión a internet.");
+      return;
     }
+    if(e.error === "network") aviso("El dictado necesita conexión a internet.");
   };
-  rec.onend = ()=>{ recActivo = false; pintarChips(); };
-  try{ rec.start(); recActivo = true; pintarChips(); }catch(e){ recActivo = false; }
+  rec.onend = ()=>{
+    recActivo = false; pintarChips();
+    rec = null;
+    if(!quieroEscuchar || !vozEntrada) return;
+    clearTimeout(tEscucha);
+    tEscucha = setTimeout(()=> prenderRec(alRecibir, continuo, alInterim), 180);
+  };
+  try{
+    rec.start();
+    recActivo = true; pintarChips();
+  }catch(e){
+    recActivo = false;
+    if(!quieroEscuchar) return;
+    clearTimeout(tEscucha);
+    tEscucha = setTimeout(()=> prenderRec(alRecibir, continuo, alInterim), 320);
+  }
 }
 function pararEscucha(){
-  if(rec){ try{ rec.onend = null; rec.stop(); }catch(e){} try{ rec.abort(); }catch(e){} rec = null; }
+  quieroEscuchar = false;
+  clearTimeout(tEscucha); tEscucha = null;
+  if(rec){ try{ rec.onend = null; rec.onerror = null; rec.stop(); }catch(e){} try{ rec.abort(); }catch(e){} rec = null; }
   recActivo = false; pintarChips();
 }
 const RELLENO = /^(este|eh|em|mmm|a ver|creo que|yo digo|digo|dije|seria|es|son|la|el|los|las|un|una|lo)\s+/;
