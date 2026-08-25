@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrenamiento para ¡Ahora Caigo!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Figtree:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noche:#0B1026;
+  --piso:#171F45;
+  --piso-alto:#212B5C;
+  --vacio:#04050D;
+  --foco:#FFC531;
+  --magenta:#E5326E;
+  --menta:#35E0A1;
+  --humo:#AEB6DC;
+  --blanco:#FFFFFF;
+  --display:'Anton', 'Arial Narrow', Impact, sans-serif;
+  --cuerpo:'Figtree', system-ui, -apple-system, sans-serif;
+  --mono:'Space Mono', ui-monospace, monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--noche);color:var(--blanco);
+  font-family:var(--cuerpo);font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(60% 45% at 20% -5%, rgba(255,197,49,.14), transparent 70%),
+    radial-gradient(50% 40% at 82% 0%, rgba(229,50,110,.14), transparent 70%);
+}
+.envoltorio{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 22px}
+a{color:var(--foco)}
+
+/* ---------- tipografía ---------- */
+.rotulo{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--foco);margin:0 0 14px;
+}
+.rotulo--humo{color:var(--humo)}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.01em;margin:0}
+h1{font-size:clamp(3.1rem,11vw,7rem);line-height:.86}
+h2{font-size:clamp(1.7rem,4.6vw,2.7rem);line-height:1}
+h3{font-size:1.12rem;letter-spacing:.04em}
+p{margin:0 0 1em}
+.plomo{color:var(--humo)}
+
+/* ---------- hero ---------- */
+.hero{padding:72px 0 26px;text-align:center}
+.hero h1 span{display:block;color:var(--foco)}
+.hero .bajada{max-width:520px;margin:20px auto 0;color:var(--humo)}
+
+/* ---------- plataforma / compuertas ---------- */
+.plataforma{
+  margin:40px 0 0;border-radius:20px 20px 0 0;
+  background:linear-gradient(180deg,var(--piso-alto),var(--piso));
+  border:1px solid rgba(255,255,255,.09);border-bottom:none;
+  padding:22px 22px 0;position:relative;overflow:hidden;
+}
+.plataforma::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:78px;
+  background:linear-gradient(180deg,transparent,var(--vacio));pointer-events:none;
+}
+.compuertas{display:flex;gap:5px;justify-content:center;padding:16px 0 34px;margin:0;list-style:none}
+.compuerta{
+  width:100%;max-width:52px;height:30px;border-radius:4px;
+  background:linear-gradient(180deg,#2D3A78,#1B2350);
+  border:1px solid rgba(255,255,255,.12);
+  transform-origin:top center;transition:transform .45s cubic-bezier(.6,-0.3,.3,1.4),opacity .45s;
+}
+.compuerta[data-abierta="si"]{transform:rotateX(78deg) translateY(6px);opacity:.25}
+.compuerta[data-vos="si"]{background:linear-gradient(180deg,var(--foco),#D19806);border-color:#FFE49B}
+
+/* ---------- ronda en vivo ---------- */
+.ronda{
+  position:relative;background:rgba(9,13,36,.72);border:1px solid rgba(255,255,255,.11);
+  border-radius:16px;padding:26px;max-width:620px;margin:0 auto;backdrop-filter:blur(6px);
+}
+.ronda__meta{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.ronda__juego{font-family:var(--mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--foco)}
+.reloj{font-family:var(--mono);font-weight:700;font-size:.95rem;color:var(--humo)}
+.reloj[data-urgente="si"]{color:var(--magenta)}
+.barra{height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-bottom:20px}
+.barra__lleno{height:100%;width:100%;background:var(--foco);transition:width .25s linear}
+.barra__lleno[data-urgente="si"]{background:var(--magenta)}
+.consigna{font-family:var(--display);font-size:clamp(1.35rem,4.4vw,2rem);line-height:1.12;text-transform:none;margin:0 0 6px}
+.pista{font-family:var(--mono);font-size:1.25rem;letter-spacing:.34em;color:var(--foco);margin:14px 0 0;word-break:break-word}
+.aclara{font-size:.9rem;color:var(--humo);margin:8px 0 0}
+
+.responder{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+input[type=text]{
+  flex:1 1 200px;min-width:0;background:#080C22;color:var(--blanco);
+  border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:14px 16px;
+  font-family:var(--cuerpo);font-size:1.05rem;
+}
+input[type=text]::placeholder{color:#5C6699}
+input[type=text]:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+
+button{font-family:var(--cuerpo);cursor:pointer;border:none;border-radius:10px;font-weight:800}
+.btn{background:var(--foco);color:#120C00;padding:14px 22px;font-size:1rem;transition:transform .12s,filter .12s}
+.btn:hover{filter:brightness(1.09);transform:translateY(-1px)}
+.btn--fantasma{background:transparent;color:var(--blanco);border:1px solid rgba(255,255,255,.28)}
+.btn--fantasma:hover{background:rgba(255,255,255,.08)}
+.btn--chico{padding:10px 16px;font-size:.88rem}
+.opciones{display:grid;gap:9px;margin-top:22px}
+.opcion{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:var(--blanco);
+  text-align:left;padding:14px 16px;font-size:1rem;font-weight:600;transition:background .14s,border-color .14s;
+}
+.opcion:hover{background:rgba(255,255,255,.11);border-color:var(--foco)}
+.opcion[data-estado="bien"]{background:rgba(53,224,161,.18);border-color:var(--menta)}
+.opcion[data-estado="mal"]{background:rgba(229,50,110,.18);border-color:var(--magenta)}
+.fichas{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;min-height:8px}
+.ficha{font-family:var(--mono);font-size:.78rem;background:rgba(53,224,161,.16);border:1px solid var(--menta);
+  color:var(--menta);border-radius:999px;padding:5px 12px}
+.veredicto{margin-top:18px;font-weight:800;font-size:1.02rem;min-height:26px}
+.veredicto[data-tipo="bien"]{color:var(--menta)}
+.veredicto[data-tipo="mal"]{color:var(--magenta)}
+.veredicto small{display:block;font-weight:400;color:var(--humo);font-size:.88rem;margin-top:3px}
+
+/* firma: la caída */
+@keyframes caer{
+  0%{transform:translateY(0) rotate(0);opacity:1}
+  18%{transform:translateY(-10px) rotate(-1.2deg)}
+  100%{transform:translateY(150%) rotate(7deg);opacity:0}
+}
+.ronda[data-cae="si"]{animation:caer .85s cubic-bezier(.55,.06,.9,.6) forwards}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .ronda[data-cae="si"]{animation:none;opacity:.25;border-color:var(--magenta)}
+  .compuerta{transition:none}
+}
+
+/* ---------- secciones ---------- */
+section{padding:76px 0}
+.enc{max-width:640px;margin-bottom:40px}
+.enc p{color:var(--humo);margin-top:12px}
+
+.pasos{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.paso{display:grid;grid-template-columns:64px 1fr;gap:20px;padding:24px 4px;border-top:1px solid rgba(255,255,255,.11)}
+.paso:last-child{border-bottom:1px solid rgba(255,255,255,.11)}
+.paso__n{font-family:var(--display);font-size:2rem;color:var(--foco);line-height:1}
+.paso h3{margin-bottom:6px}
+.paso p{margin:0;color:var(--humo);font-size:.98rem}
+
+.grilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px}
+.tarjeta{
+  background:linear-gradient(180deg,rgba(33,43,92,.6),rgba(23,31,69,.6));
+  border:1px solid rgba(255,255,255,.11);border-radius:14px;padding:22px;display:flex;flex-direction:column;
+}
+.tarjeta h3{margin-bottom:8px}
+.tarjeta p{font-size:.93rem;color:var(--humo);flex:1}
+.ejemplo{font-family:var(--mono);font-size:.8rem;color:var(--foco);background:rgba(255,197,49,.09);
+  border-left:2px solid var(--foco);padding:9px 12px;margin:0 0 16px;line-height:1.5}
+.tacto{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto}
+.acierto{font-family:var(--mono);font-size:.75rem;color:var(--humo)}
+
+.modos{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.modo{
+  text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);
+  color:var(--blanco);border-radius:14px;padding:26px;transition:border-color .16s,background .16s;
+}
+.modo:hover{border-color:var(--foco);background:rgba(255,197,49,.07)}
+.modo strong{display:block;font-family:var(--display);font-size:1.5rem;text-transform:uppercase;margin-bottom:8px;font-weight:400}
+.modo span{font-size:.92rem;color:var(--humo)}
+
+.consejos{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.consejos li{padding-left:26px;position:relative;color:var(--humo)}
+.consejos li::before{content:"→";position:absolute;left:0;color:var(--foco);font-weight:800}
+.consejos strong{color:var(--blanco)}
+
+/* ---------- huellas ---------- */
+.huellas{display:flex;gap:16px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+.huella{
+  width:118px;height:150px;border-radius:60px 60px 14px 14px;border:2px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem;
+  transition:transform .16s,border-color .16s;padding:10px;text-align:center;
+}
+.huella--blanca{background:rgba(255,255,255,.9);color:#0B1026}
+.huella--negra{background:#06081A;color:var(--blanco)}
+.huella:hover{transform:translateY(-5px);border-color:var(--foco)}
+.huella[data-revelada="si"]{font-size:1.05rem;font-weight:700;border-color:var(--foco);cursor:default}
+
+/* ---------- voz ---------- */
+.vozbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.chip{
+  background:transparent;color:var(--humo);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:8px 14px;font-size:.8rem;font-weight:600;
+  display:inline-flex;align-items:center;gap:7px;transition:background .14s,color .14s,border-color .14s;
+}
+.chip:hover:not(:disabled){color:var(--blanco);border-color:var(--blanco)}
+.chip[data-on="si"]{background:var(--foco);color:#120C00;border-color:var(--foco)}
+.chip:disabled{opacity:.35;cursor:not-allowed}
+.punto{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
+.chip[data-escuchando="si"] .punto{background:var(--magenta);animation:latir 1s infinite}
+@keyframes latir{50%{transform:scale(1.7);opacity:.5}}
+.avisoVoz{max-width:620px;margin:0 auto 18px;font-size:.82rem;color:var(--magenta);text-align:center;min-height:1px}
+.dicho{font-family:var(--mono);font-size:.85rem;color:var(--foco);margin:14px 0 0;min-height:22px}
+.dicho:empty{margin:0}
+
+/* ---------- elenco y narración ---------- */
+.elenco{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;list-style:none;margin:0 auto 16px;padding:0;max-width:620px}
+.actor{font-family:var(--mono);font-size:.66rem;letter-spacing:.04em;padding:5px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);color:var(--humo);transition:opacity .3s,border-color .2s,color .2s}
+.actor[data-estado="caido"]{opacity:.25;text-decoration:line-through}
+.actor[data-estado="vos"]{border-color:var(--foco);color:var(--foco)}
+.actor[data-estado="lider"]{background:rgba(255,197,49,.18);border-color:var(--foco);color:var(--blanco)}
+.actor[data-estado="duelo"]{border-color:var(--magenta);color:var(--magenta)}
+.narra{max-width:620px;margin:0 auto;background:rgba(9,13,36,.75);border:1px solid rgba(255,255,255,.11);
+  border-radius:16px;padding:44px 26px;text-align:center;font-family:var(--display);text-transform:none;
+  font-size:clamp(1.25rem,3.9vw,1.85rem);line-height:1.18}
+.narra small{display:block;font-family:var(--cuerpo);font-size:.85rem;color:var(--humo);margin-top:14px;letter-spacing:0}
+
+/* ---------- elección de rol ---------- */
+.roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:14px;max-width:620px;margin:0 auto}
+.rol{
+  text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);color:var(--blanco);
+  border-radius:14px;padding:24px;transition:border-color .16s,background .16s;
+}
+.rol:hover{border-color:var(--foco);background:rgba(255,197,49,.08)}
+.rol strong{display:block;font-family:var(--display);font-size:1.45rem;text-transform:uppercase;font-weight:400;margin-bottom:8px}
+.rol span{display:block;font-size:.9rem;color:var(--humo)}
+.rol em{display:block;font-style:normal;font-family:var(--mono);font-size:.7rem;color:var(--foco);
+  letter-spacing:.12em;text-transform:uppercase;margin-top:12px}
+.titulete{max-width:620px;margin:0 auto 22px;text-align:center}
+.titulete h2{margin-bottom:10px}
+.titulete p{color:var(--humo);font-size:.94rem}
+
+/* ---------- arena ---------- */
+.arena{
+  position:fixed;inset:0;z-index:40;background:rgba(4,5,13,.95);display:none;
+  overflow-y:auto;padding:26px 18px 60px;
+}
+.arena[data-abierta="si"]{display:block}
+.arena__barra{max-width:620px;margin:0 auto 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.marcador{font-family:var(--mono);font-size:.78rem;color:var(--humo);letter-spacing:.05em}
+.marcador b{color:var(--foco)}
+.cerrar{background:transparent;color:var(--humo);border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:8px 14px;font-size:.85rem}
+.cerrar:hover{color:var(--blanco);border-color:var(--blanco)}
+.resumen{max-width:620px;margin:0 auto;text-align:center;background:rgba(9,13,36,.8);
+  border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:38px 26px}
+.resumen h2{margin-bottom:14px}
+.resumen .cifra{font-family:var(--display);font-size:clamp(2.6rem,9vw,4.4rem);color:var(--foco);line-height:1}
+.resumen .acciones{display:flex;gap:10px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+.fallados{text-align:left;margin:26px auto 0;max-width:440px;font-size:.9rem;color:var(--humo)}
+.fallados li{margin-bottom:5px}
+.fallados b{color:var(--blanco)}
+
+footer{border-top:1px solid rgba(255,255,255,.1);padding:34px 0 60px;color:#7C86B8;font-size:.85rem}
+@media (max-width:560px){
+  .paso{grid-template-columns:44px 1fr;gap:14px}
+  .ronda{padding:20px}
+  section{padding:56px 0}
+}
+</style>
+</head>
+<body>
+
+<div class="envoltorio">
+
+  <header class="hero">
+    <p class="rotulo">Entrenamiento no oficial · Formato eltrece</p>
+    <h1>Ahora <span>Caigo</span></h1>
+    <p class="bajada">Ya estás arriba de la plataforma. Contestá antes de que se abra el piso.</p>
+  </header>
+
+  <div class="plataforma">
+    <ul class="compuertas" id="compuertasHero" aria-hidden="true"></ul>
+    <div class="ronda" id="rondaHero">
+      <div class="ronda__meta">
+        <span class="ronda__juego" id="juegoHero">Definición</span>
+        <span class="reloj" id="relojHero">15s</span>
+      </div>
+      <div class="barra"><div class="barra__lleno" id="barraHero"></div></div>
+      <p class="consigna" id="consignaHero">Cargando…</p>
+      <p class="pista" id="pistaHero" hidden></p>
+      <div id="cuerpoHero"></div>
+      <p class="veredicto" id="veredictoHero" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <section id="reglas">
+    <div class="enc">
+      <p class="rotulo rotulo--humo">Cómo se juega</p>
+      <h2>Once personas, un solo piso firme</h2>
+      <p>El programa es una secuencia fija. Conocerla de memoria te saca de encima la mitad de los nervios: en el estudio vas a estar pensando en la respuesta, no en qué viene después.</p>
+    </div>
+    <ol class="pasos">
+      <li class="paso"><span class="paso__n">1</span><div>
+        <h3>Subís a la plataforma</h3>
+        <p>Once concursantes, cada uno parado sobre una compuerta a tres metros de altura. Uno es el Protagonista y los otros diez son los rivales. Si venís de ganar el programa anterior, arrancás vos como Protagonista.</p></div></li>
+      <li class="paso"><span class="paso__n">2</span><div>
+        <h3>Elegís rival y jugás el duelo</h3>
+        <p>El Protagonista se enfrenta a un rival por vez. Barassi lee la consigna y el que falla o se queda sin tiempo cae por la compuerta. Si cae el Protagonista, el rival ocupa su lugar y sigue el juego.</p></div></li>
+      <li class="paso"><span class="paso__n">3</span><div>
+        <h3>Levantás la huella</h3>
+        <p>Delante de cada rival hay dos huellas, una blanca y una negra. Cada una esconde una suma que va de $1 a $100.000 y nadie sabe cuál es cuál. Ganás el duelo, elegís huella y se suma al pozo.</p></div></li>
+      <li class="paso"><span class="paso__n">4</span><div>
+        <h3>Sobrevivís los diez duelos</h3>
+        <p>Se juega hasta que queda una sola persona parada. Ese es el ganador del día, con todo lo que juntó en las huellas.</p></div></li>
+      <li class="paso"><span class="paso__n">5</span><div>
+        <h3>Vas al final: diez preguntas, dos minutos</h3>
+        <p>La última instancia duplica el pozo. Diez definiciones cortas, una palabra cada una, y el reloj no para. Podés pasar y volver, pero cada segundo que dudás se lo estás sacando a la pregunta que viene. Este es el juego que más conviene entrenar.</p></div></li>
+      <li class="paso"><span class="paso__n">6</span><div>
+        <h3>Volvés mañana</h3>
+        <p>El ganador del día vuelve al programa siguiente como Protagonista para seguir acumulando.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="juegos">
+    <div class="enc">
+      <p class="rotulo rotulo--humo">Los juegos</p>
+      <h2>Siete formas de quedarte sin piso</h2>
+      <p>Cada tarjeta abre una práctica infinita de ese tipo de consigna, sin caídas: fallás, ves la respuesta y seguís. Es el modo para machacar el que te cuesta.</p>
+    </div>
+    <div class="grilla" id="grillaJuegos"></div>
+  </section>
+
+  <section id="modos">
+    <div class="enc">
+      <p class="rotulo rotulo--humo">Simulacros</p>
+      <h2>Jugarlo como en el estudio</h2>
+      <p>Acá sí se cae. Un error y se termina, igual que allá. Adentro de cada simulacro tenés dos interruptores: <strong>Que me lea</strong>, para escuchar la consigna en vez de leerla, y <strong>Contesto hablando</strong>, para responder por micrófono como en el estudio. El dictado anda en Chrome y en Edge; si el navegador bloquea el micrófono, descargá el archivo y abrilo desde tu computadora.</p>
+    </div>
+    <div class="modos">
+      <button class="modo" data-modo="final"><strong>El final</strong><span>Diez definiciones, dos minutos, todo o nada. El simulacro más parecido a la instancia que define el premio.</span></button>
+      <button class="modo" data-modo="duelos"><strong>Los diez duelos</strong><span>Elegís si subís como Protagonista o como rival. Turnos alternados: el que falla cae. Ganás un duelo, levantás huella.</span></button>
+      <button class="modo" data-modo="relampago"><strong>Relámpago</strong><span>Sesenta segundos, preguntas de todo tipo, sin penalización por error. Para calentar la cabeza.</span></button>
+    </div>
+  </section>
+
+  <section id="consejos">
+    <div class="enc">
+      <p class="rotulo rotulo--humo">Antes de ir</p>
+      <h2>Cinco cosas que se entrenan</h2>
+    </div>
+    <ul class="consejos">
+      <li><strong>Decilo aunque no estés seguro.</strong> El silencio pierde igual que el error, pero el error a veces acierta. En el final sobre todo: callarte cuesta lo mismo que equivocarte y encima te come el reloj.</li>
+      <li><strong>Escuchá el verbo inicial.</strong> Las definiciones arrancan con una marca de categoría gramatical: "Es…" pide un verbo en infinitivo, "Persona que…" pide un oficio, "Lugar donde…" pide un sustantivo de lugar. Eso te recorta el campo antes de terminar de escuchar.</li>
+      <li><strong>Practicá el plural y el género.</strong> Muchas se pierden por contestar "guante" cuando la consigna pedía "guantes".</li>
+      <li><strong>En el final, pasá rápido.</strong> Si a los dos segundos no aparece, seguí. Volver a una pregunta con la cabeza fresca es más barato que quedarte trabado.</li>
+      <li><strong>Cultura general argentina.</strong> Provincias, capitales, ríos, escritores, tango y fútbol aparecen seguido. Es lo más rentable para repasar la semana previa.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Herramienta de práctica hecha por un fan. No está asociada a eltrece, a Boxfish ni al programa. El formato general (protagonista, duelos con compuertas, huellas de $1 a $100.000 y final de diez preguntas en dos minutos) sigue lo que se conoce del ciclo; los siete tipos de juego son una reconstrucción para entrenar, no el listado oficial de rondas. Las estadísticas se guardan en este dispositivo cuando el navegador lo permite.</p>
+    <p>Anotate como participante en la web de eltrece.</p>
+  </footer>
+</div>
+
+<div class="arena" id="arena" role="dialog" aria-modal="true" aria-label="Práctica">
+  <div class="arena__barra">
+    <span class="marcador" id="marcador"></span>
+    <div class="vozbar">
+      <button class="chip" id="chipHabla" data-on="no" aria-pressed="false"><span class="punto"></span>Que me lea</button>
+      <button class="chip" id="chipEscucha" data-on="no" aria-pressed="false"><span class="punto"></span>Contesto hablando</button>
+      <button class="cerrar" id="btnCerrar">Salir</button>
+    </div>
+  </div>
+  <p class="avisoVoz" id="avisoVoz" role="status" aria-live="polite"></p>
+  <div id="arenaCuerpo"></div>
+</div>
+
+<script>
+/* ===================== BANCO DE CONSIGNAS ===================== */
+const BANCO = {
+definicion:{
+  nombre:"Definición", ejemplo:'"Es reemplazar" → SUSTITUIR',
+  desc:"Una definición corta, una sola palabra de respuesta. Es el corazón del programa y el formato exacto del final.",
+  items:[
+   {p:"Es reemplazar",r:["sustituir"]},
+   {p:"Es guardar dinero para el futuro",r:["ahorrar"]},
+   {p:"Aparato que sirve para medir la temperatura",r:["termometro"]},
+   {p:"Persona que cura animales",r:["veterinario","veterinaria"]},
+   {p:"Es hablar en voz muy baja",r:["susurrar","cuchichear"]},
+   {p:"Ave que no vuela y vive en el hielo",r:["pinguino"]},
+   {p:"Lo contrario de recordar",r:["olvidar"]},
+   {p:"Fruto del olivo",r:["aceituna","oliva"]},
+   {p:"Es dejar de trabajar por haber llegado a cierta edad",r:["jubilarse","jubilar","retirarse"]},
+   {p:"Órgano que bombea la sangre",r:["corazon"]},
+   {p:"Es decir algo que no es cierto",r:["mentir"]},
+   {p:"Es unir dos telas con hilo y aguja",r:["coser"]},
+   {p:"Persona que vende carne",r:["carnicero","carnicera"]},
+   {p:"Momento del día en que sale el sol",r:["amanecer","alba","aurora"]},
+   {p:"Instrumento para ver cosas muy pequeñas",r:["microscopio"]},
+   {p:"Animal que da lana",r:["oveja"]},
+   {p:"Documento que se necesita para viajar al exterior",r:["pasaporte"]},
+   {p:"Es cambiar de casa",r:["mudarse","mudar"]},
+   {p:"Herramienta que se usa para clavar clavos",r:["martillo"]},
+   {p:"Miedo a los lugares cerrados",r:["claustrofobia"]},
+   {p:"Es dejar algo para más adelante",r:["postergar","posponer","aplazar","demorar"]},
+   {p:"Profesional que defiende a alguien en un juicio",r:["abogado","abogada"]},
+   {p:"Prenda que cubre las manos en invierno",r:["guantes"]},
+   {p:"Es irse de un país para vivir en otro",r:["emigrar","migrar"]},
+   {p:"Aparato que conserva fríos los alimentos",r:["heladera","refrigerador","nevera"]},
+   {p:"Es mirar con mucha atención",r:["observar","contemplar"]},
+   {p:"Estación del año en que se caen las hojas",r:["otoño"]},
+   {p:"Persona que maneja un avión",r:["piloto","aviador"]},
+   {p:"Es sentir un cansancio extremo",r:["agotarse","agotar","extenuarse"]},
+   {p:"Es contar un hecho con detalle",r:["relatar","narrar","contar"]},
+   {p:"Vehículo de dos ruedas que se mueve a pedal",r:["bicicleta","bici"]},
+   {p:"Lo que queda después de que algo se quema",r:["ceniza","cenizas"]},
+   {p:"Es pedir perdón",r:["disculparse","disculpar"]},
+   {p:"Es desplazarse en el agua moviendo brazos y piernas",r:["nadar"]},
+   {p:"Persona que corta el pelo",r:["peluquero","peluquera"]},
+   {p:"Bebida caliente que se toma con bombilla",r:["mate"]},
+   {p:"Conjunto de estrellas que forman una figura",r:["constelacion"]},
+   {p:"Es hacer reír a alguien",r:["divertir","entretener"]},
+   {p:"Metal precioso de color amarillo",r:["oro"]},
+   {p:"Es girar sobre un eje",r:["rotar","girar"]},
+   {p:"Instrumento de cuerdas que se toca con un arco",r:["violin"]},
+   {p:"Persona que arregla las cañerías",r:["plomero","plomera","fontanero"]},
+   {p:"Recipiente en el que se toma el café",r:["taza","pocillo"]},
+   {p:"Cría de la vaca",r:["ternero","ternera","becerro"]},
+   {p:"Sala donde se proyectan películas",r:["cine"]},
+   {p:"Es dar de comer",r:["alimentar","nutrir"]},
+   {p:"Es hacer que algo dure más tiempo",r:["prolongar","alargar","extender"]},
+   {p:"Es subir el precio de algo",r:["encarecer","aumentar","remarcar"]},
+   {p:"Lo contrario de encender",r:["apagar"]},
+   {p:"Persona que escribe libros",r:["escritor","escritora","autor","autora"]},
+   {p:"Es mover la cabeza para decir que sí",r:["asentir"]},
+   {p:"Es guardar silencio",r:["callar","callarse"]},
+   {p:"Máquina que vuela con hélices y aterriza en vertical",r:["helicoptero"]},
+   {p:"Es adelantarse a algo que va a pasar",r:["anticipar","prever"]},
+   {p:"Lugar donde se guardan libros para prestar",r:["biblioteca"]},
+   {p:"Es echarle sal a la comida",r:["salar"]},
+   {p:"Es partir algo en partes iguales",r:["dividir","repartir","partir"]},
+   {p:"Es sentir miedo",r:["temer"]},
+   {p:"Estudio de los astros y el universo",r:["astronomia"]},
+   {p:"Prenda que se usa para meterse a la pileta",r:["malla","traje de baño","bañador"]},
+   {p:"Es volver a empezar",r:["reiniciar","recomenzar","retomar"]},
+   {p:"Aparato para hablar a distancia",r:["telefono"]},
+   {p:"Animal doméstico que maúlla",r:["gato","gata"]},
+   {p:"Es hacer preguntas para averiguar algo",r:["interrogar","preguntar","indagar"]},
+   {p:"Comprobante que entrega un comercio al vender",r:["factura","ticket","recibo","boleta","comprobante"]},
+   {p:"Es poner en marcha un motor",r:["arrancar","encender"]},
+   {p:"Persona que atiende en un restaurante",r:["mozo","moza","camarero","camarera"]},
+   {p:"Es abandonar un lugar rápidamente por peligro",r:["huir","escapar","evacuar"]},
+   {p:"Es dar la bienvenida a alguien",r:["recibir","acoger"]},
+   {p:"Es dejar de tener trabajo por decisión de la empresa",r:["despedir"]}
+  ]},
+incompleta:{
+  nombre:"Palabra incompleta", ejemplo:'F _ T B _ L · "Deporte de once contra once" → FÚTBOL',
+  desc:"Ves la palabra con letras tapadas y una pista. Se entrena la vista, no el vocabulario: contá las letras primero.",
+  items:[
+   {p:"Deporte de once contra once",r:["futbol"]},
+   {p:"Comida rellena que se hornea o se fríe",r:["empanada"]},
+   {p:"Transporte urbano de pasajeros",r:["colectivo"]},
+   {p:"Mamífero que vuela y duerme cabeza abajo",r:["murcielago"]},
+   {p:"Se abre cuando llueve",r:["paraguas"]},
+   {p:"Cubierto para la sopa",r:["cuchara"]},
+   {p:"El animal terrestre más grande",r:["elefante"]},
+   {p:"Insecto de alas de colores",r:["mariposa"]},
+   {p:"Abertura de la pared que deja pasar la luz",r:["ventana"]},
+   {p:"Calzado deportivo",r:["zapatilla"]},
+   {p:"Pieza de metal que se enrosca",r:["tornillo"]},
+   {p:"Sirve para subir a otro piso",r:["escalera"]},
+   {p:"Abriga el cuello",r:["bufanda"]},
+   {p:"Suena en la iglesia",r:["campana"]},
+   {p:"El animal de cuello más largo",r:["jirafa"]},
+   {p:"Condimento negro que se muele",r:["pimienta"]},
+   {p:"Se apoya la cabeza para dormir",r:["almohada"]},
+   {p:"Sirve para mirar las estrellas",r:["telescopio"]},
+   {p:"Guarda la ropa en el dormitorio",r:["placard"]},
+   {p:"Producto lácteo que se unta",r:["manteca"]}
+  ]},
+anagrama:{
+  nombre:"Anagrama", ejemplo:'T E L É F O N O desordenado + pista',
+  desc:"Las letras están todas, pero mezcladas. Buscá primero las vocales y las terminaciones típicas: -CIÓN, -ERÍA, -ADOR.",
+  items:[
+   {p:"Mamífero que vuela de noche",r:["murcielago"]},
+   {p:"País del Cono Sur",r:["argentina"]},
+   {p:"Se hace con cacao",r:["chocolate"]},
+   {p:"Vehículo a pedal",r:["bicicleta"]},
+   {p:"Sirve para comunicarse a distancia",r:["telefono"]},
+   {p:"Aparato que mueve el aire",r:["ventilador"]},
+   {p:"Ahí se compra el pan",r:["panaderia"]},
+   {p:"Fiesta con murgas y comparsas",r:["carnaval"]},
+   {p:"Tiene trompa y colmillos",r:["elefante"]},
+   {p:"Cítrico parecido a la naranja",r:["mandarina"]},
+   {p:"Mueble para trabajar sentado",r:["escritorio"]},
+   {p:"Protege de la lluvia",r:["paraguas"]},
+   {p:"Instrumento de seis cuerdas",r:["guitarra"]},
+   {p:"Calzado para hacer deporte",r:["zapatilla"]},
+   {p:"Muestra los días del año",r:["calendario"]},
+   {p:"Sirve para trabajar en el taller",r:["herramienta"]},
+   {p:"Se ve en el cine",r:["pelicula"]},
+   {p:"Sube y baja gente en un edificio",r:["ascensor"]},
+   {p:"Sale del mar y rompe en la orilla",r:["ola"]},
+   {p:"Guarda la comida fría",r:["heladera"]}
+  ]},
+vf:{
+  nombre:"Verdadero o falso", ejemplo:'"La ballena es un pez" → FALSO',
+  desc:"Afirmaciones que suenan bien y no lo son. Acá se pierde por confiado: leé la frase entera antes de tocar.",
+  items:[
+   {p:"El Aconcagua es la montaña más alta de América.",v:true,n:"Está en Mendoza, 6.960 metros."},
+   {p:"La ballena es un pez.",v:false,n:"Es un mamífero: respira aire y amamanta."},
+   {p:"El Río de la Plata desemboca en el océano Atlántico.",v:true,n:""},
+   {p:"Los murciélagos son ciegos.",v:false,n:"Ven; además se orientan por ecolocalización."},
+   {p:"La miel en buen estado no se echa a perder.",v:true,n:"Se encontró miel comestible en tumbas egipcias."},
+   {p:"El Sol es una estrella.",v:true,n:""},
+   {p:"Los camellos guardan agua en la joroba.",v:false,n:"Guardan grasa, que es reserva de energía."},
+   {p:"El diamante está compuesto de carbono.",v:true,n:"El mismo elemento que el grafito."},
+   {p:"La Muralla China se ve a simple vista desde la Luna.",v:false,n:"Ni siquiera desde la órbita baja se distingue."},
+   {p:"El corazón humano tiene cuatro cavidades.",v:true,n:"Dos aurículas y dos ventrículos."},
+   {p:"Los pingüinos viven en el Polo Norte.",v:false,n:"Viven en el hemisferio sur."},
+   {p:"Un año luz es una unidad de tiempo.",v:false,n:"Mide distancia: lo que la luz recorre en un año."},
+   {p:"El monte Everest está en la cordillera del Himalaya.",v:true,n:""},
+   {p:"El tomate es, botánicamente, una fruta.",v:true,n:"Es el fruto de la planta, aunque se use como verdura."},
+   {p:"Australia es al mismo tiempo un país y un continente.",v:true,n:""},
+   {p:"El oro es más pesado que el plomo.",v:true,n:"Casi el doble de denso."},
+   {p:"Las moscas viven un solo día.",v:false,n:"La mosca común vive alrededor de un mes."},
+   {p:"Argentina limita con seis países.",v:false,n:"Son cinco: Chile, Bolivia, Paraguay, Brasil y Uruguay."},
+   {p:"La sangre es azul mientras está dentro del cuerpo.",v:false,n:"Siempre es roja; las venas se ven azules por la piel."},
+   {p:"El cerebro consume alrededor del veinte por ciento de la energía del cuerpo.",v:true,n:""},
+   {p:"La lengua tiene zonas exclusivas para cada sabor.",v:false,n:"El mapa de la lengua es un mito: todas las zonas detectan todo."},
+   {p:"Ushuaia es la ciudad más austral de Argentina.",v:true,n:""},
+   {p:"El tango fue declarado Patrimonio Cultural Inmaterial de la Humanidad.",v:true,n:"Por la Unesco, en 2009."},
+   {p:"Los gatos no distinguen ningún color.",v:false,n:"Ven colores, aunque menos que nosotros."}
+  ]},
+opcion:{
+  nombre:"Cultura general", ejemplo:'"¿Quién escribió El Aleph?" · cuatro opciones',
+  desc:"Cuatro opciones, una correcta. Fuerte en Argentina: provincias, autores, historia, deportes.",
+  items:[
+   {p:"¿Quién escribió El Aleph?",o:["Jorge Luis Borges","Julio Cortázar","Ernesto Sabato","Roberto Arlt"],i:0},
+   {p:"¿En qué provincia están las Cataratas del Iguazú?",o:["Corrientes","Misiones","Chaco","Formosa"],i:1},
+   {p:"¿En qué año volvió la democracia a la Argentina?",o:["1976","1982","1983","1989"],i:2},
+   {p:"¿Cuál es el río más caudaloso del mundo?",o:["Nilo","Amazonas","Yangtsé","Misisipi"],i:1},
+   {p:"¿Cuál es la capital de Australia?",o:["Sídney","Melbourne","Canberra","Perth"],i:2},
+   {p:"¿Cuántos jugadores tiene un equipo de vóley en cancha?",o:["5","6","7","11"],i:1},
+   {p:"¿Qué gas absorben las plantas para hacer la fotosíntesis?",o:["Oxígeno","Nitrógeno","Dióxido de carbono","Hidrógeno"],i:2},
+   {p:"¿Quién pintó La noche estrellada?",o:["Claude Monet","Vincent van Gogh","Paul Cézanne","Pablo Picasso"],i:1},
+   {p:"¿Qué metal es líquido a temperatura ambiente?",o:["Mercurio","Plomo","Estaño","Zinc"],i:0},
+   {p:"¿Cuántos huesos tiene el cuerpo humano adulto?",o:["186","206","242","280"],i:1},
+   {p:"¿Qué planeta tiene el sistema de anillos más visible?",o:["Júpiter","Urano","Saturno","Neptuno"],i:2},
+   {p:"¿Cuál es la moneda de Brasil?",o:["Peso","Real","Guaraní","Escudo"],i:1},
+   {p:"¿Quién escribió Rayuela?",o:["Julio Cortázar","Adolfo Bioy Casares","Manuel Puig","Leopoldo Marechal"],i:0},
+   {p:"¿Cuál es el océano más extenso?",o:["Atlántico","Índico","Ártico","Pacífico"],i:3},
+   {p:"¿En qué continente está Egipto?",o:["Asia","África","Europa","Oceanía"],i:1},
+   {p:"¿Cuál es el hueso más largo del cuerpo humano?",o:["Húmero","Tibia","Fémur","Peroné"],i:2},
+   {p:"¿Qué instrumento es característico del tango?",o:["Acordeón","Bandoneón","Charango","Clarinete"],i:1},
+   {p:"¿Cuál es la capital de Canadá?",o:["Toronto","Montreal","Vancouver","Ottawa"],i:3},
+   {p:"¿Qué elemento tiene el símbolo químico Fe?",o:["Flúor","Hierro","Fósforo","Francio"],i:1},
+   {p:"¿Cuál es la provincia argentina más extensa?",o:["Buenos Aires","Santa Cruz","Chubut","Río Negro"],i:0},
+   {p:"¿Quién dirigió el cruce de los Andes en 1817?",o:["Manuel Belgrano","José de San Martín","Martín Güemes","Juan José Castelli"],i:1},
+   {p:"¿Cuántos lados tiene un hexágono?",o:["5","6","7","8"],i:1},
+   {p:"¿En qué ciudad está la Casa Rosada?",o:["La Plata","Córdoba","Buenos Aires","Rosario"],i:2},
+   {p:"¿Qué escritor argentino creó a Funes el memorioso?",o:["Jorge Luis Borges","Horacio Quiroga","Ricardo Piglia","Osvaldo Soriano"],i:0}
+  ]},
+categoria:{
+  nombre:"Categorías", ejemplo:'"Nombrá 3 países limítrofes de Argentina"',
+  desc:"Tenés que nombrar varios elementos de un conjunto, uno por vez. Se pierde por quedarse en blanco con lo obvio.",
+  items:[
+   {p:"Nombrá 3 países limítrofes de Argentina",n:3,r:["chile","bolivia","paraguay","brasil","uruguay"]},
+   {p:"Nombrá 3 provincias de la Patagonia argentina",n:3,r:["neuquen","rio negro","chubut","santa cruz","tierra del fuego"]},
+   {p:"Nombrá 3 planetas del sistema solar",n:3,r:["mercurio","venus","tierra","marte","jupiter","saturno","urano","neptuno"]},
+   {p:"Nombrá 3 instrumentos de cuerda",n:3,r:["guitarra","violin","viola","cello","violonchelo","contrabajo","arpa","charango","bajo","ukelele","banjo","mandolina"]},
+   {p:"Nombrá 3 frutas cítricas",n:3,r:["naranja","limon","mandarina","pomelo","lima","bergamota"]},
+   {p:"Nombrá 3 colores del arcoíris",n:3,r:["rojo","naranja","amarillo","verde","azul","indigo","violeta","añil"]},
+   {p:"Nombrá 3 animales que ponen huevos",n:3,r:["gallina","pato","avestruz","tortuga","cocodrilo","serpiente","rana","pez","pinguino","aguila","paloma","lagarto","hornero"]},
+   {p:"Nombrá 3 capitales de provincia argentina",n:3,r:["la plata","cordoba","santa fe","parana","corrientes","resistencia","posadas","formosa","salta","jujuy","san salvador de jujuy","tucuman","san miguel de tucuman","catamarca","san fernando del valle de catamarca","la rioja","san juan","mendoza","san luis","santa rosa","neuquen","viedma","rawson","rio gallegos","ushuaia","santiago del estero","san salvador"]},
+   {p:"Nombrá 3 elementos químicos",n:3,r:["oxigeno","hidrogeno","carbono","nitrogeno","hierro","oro","plata","cobre","zinc","helio","sodio","potasio","calcio","cloro","azufre","plomo","mercurio","aluminio","litio","neon","uranio"]},
+   {p:"Nombrá 3 medios de transporte",n:3,r:["auto","colectivo","tren","avion","barco","bicicleta","moto","subte","tranvia","camion","helicoptero","taxi","lancha","micro"]},
+   {p:"Nombrá 3 escritores argentinos",n:3,r:["borges","cortazar","sabato","arlt","bioy casares","puig","piglia","soriano","walsh","ocampo","storni","hernandez","lugones","aira","marechal","dolina"]},
+   {p:"Nombrá 3 deportes que se juegan con pelota",n:3,r:["futbol","basquet","voley","tenis","rugby","handball","golf","beisbol","padel","water polo","hockey","polo","softbol"]},
+   {p:"Nombrá 3 huesos del cuerpo humano",n:3,r:["femur","tibia","peroné","humero","radio","cubito","craneo","costilla","costillas","columna","vertebra","clavicula","omoplato","escapula","esternon","pelvis","rotula","mandibula","falange"]},
+   {p:"Nombrá 3 días de la semana",n:3,r:["lunes","martes","miercoles","jueves","viernes","sabado","domingo"]}
+  ]},
+sinonimo:{
+  nombre:"Sinónimos y antónimos", ejemplo:'"Un sinónimo de rápido" → VELOZ',
+  desc:"Palabra por palabra. La trampa está en el registro: piden una equivalencia exacta, no una aproximación.",
+  items:[
+   {p:"Un sinónimo de rápido",r:["veloz","ligero","raudo","apurado"]},
+   {p:"Un sinónimo de contento",r:["feliz","alegre","dichoso","radiante"]},
+   {p:"Un antónimo de generoso",r:["tacaño","avaro","mezquino","egoista","amarrete"]},
+   {p:"Un sinónimo de empezar",r:["comenzar","iniciar","arrancar","principiar"]},
+   {p:"Un antónimo de antiguo",r:["moderno","nuevo","actual","reciente"]},
+   {p:"Un sinónimo de miedo",r:["temor","pavor","terror","espanto","susto"]},
+   {p:"Un antónimo de escaso",r:["abundante","numeroso","cuantioso","sobrado"]},
+   {p:"Un sinónimo de casa",r:["hogar","vivienda","domicilio","morada","residencia"]},
+   {p:"Un antónimo de permitir",r:["prohibir","impedir","vedar","negar"]},
+   {p:"Un sinónimo de inteligente",r:["listo","astuto","brillante","sagaz","despierto","perspicaz"]},
+   {p:"Un antónimo de claro",r:["oscuro","turbio","confuso","opaco"]},
+   {p:"Un sinónimo de hablar",r:["conversar","charlar","dialogar","platicar","decir"]},
+   {p:"Un antónimo de subir",r:["bajar","descender","caer"]},
+   {p:"Un sinónimo de trabajo",r:["labor","empleo","ocupacion","tarea","faena","laburo"]},
+   {p:"Un antónimo de valiente",r:["cobarde","miedoso","temeroso","pusilanime"]},
+   {p:"Un sinónimo de enojado",r:["furioso","enfadado","molesto","irritado","colerico"]},
+   {p:"Un antónimo de lleno",r:["vacio","desocupado"]},
+   {p:"Un sinónimo de camino",r:["sendero","ruta","senda","via","carretera"]},
+   {p:"Un antónimo de recordar",r:["olvidar"]},
+   {p:"Un sinónimo de difícil",r:["complicado","complejo","arduo","dificultoso"]},
+   {p:"Un antónimo de mojado",r:["seco","enjuto"]},
+   {p:"Un sinónimo de mirar",r:["observar","ver","contemplar","otear"]},
+   {p:"Un antónimo de ruidoso",r:["silencioso","callado","tranquilo","quieto"]},
+   {p:"Un sinónimo de comida",r:["alimento","alimentos","vianda","manjar","comestibles"]}
+  ]}
+};
+
+
+/* ===================== AMPLIACIÓN DEL BANCO ===================== */
+const EXTRA = {
+definicion:[
+ {p:"Es rodear algo por todos lados",r:["rodear","cercar"]},
+ {p:"Persona que dirige una orquesta",r:["director","directora","maestro"]},
+ {p:"Es hacer que algo sea más grande",r:["agrandar","ampliar","aumentar","engrandecer"]},
+ {p:"Lugar donde se venden medicamentos",r:["farmacia"]},
+ {p:"Es dejar de dormir",r:["despertarse","despertar"]},
+ {p:"Instrumento que siempre señala el norte",r:["brujula"]},
+ {p:"Es sacarle la cáscara a una fruta",r:["pelar"]},
+ {p:"Persona que trabaja la madera",r:["carpintero","carpintera"]},
+ {p:"Es llevar algo de un lugar a otro",r:["trasladar","transportar","mover","llevar"]},
+ {p:"Destello de luz durante una tormenta",r:["relampago","rayo"]},
+ {p:"Es mantener algo en secreto",r:["ocultar","esconder","callar","disimular"]},
+ {p:"Animal que cambia de color según el entorno",r:["camaleon"]},
+ {p:"Prenda que se pone en la cabeza",r:["gorro","gorra","sombrero"]},
+ {p:"Es preparar la comida con fuego",r:["cocinar"]},
+ {p:"Lugar donde se atiende a los enfermos",r:["hospital","sanatorio","clinica"]},
+ {p:"Es hacer un agujero",r:["perforar","agujerear","horadar"]},
+ {p:"Persona que reparte las cartas en el barrio",r:["cartero","cartera"]},
+ {p:"Es pasar un texto a otro idioma",r:["traducir"]},
+ {p:"Máquina que lava la ropa",r:["lavarropas","lavadora"]},
+ {p:"Ave nocturna de ojos muy grandes",r:["buho","lechuza"]},
+ {p:"Lugar donde se guardan los aviones",r:["hangar"]},
+ {p:"Persona que investiga delitos",r:["detective","investigador","pesquisa"]},
+ {p:"Es volver al lugar del que se partió",r:["regresar","volver","retornar"]},
+ {p:"Gota que sale del ojo al llorar",r:["lagrima","lagrimas"]},
+ {p:"Es hacer que algo vaya más despacio",r:["frenar","ralentizar","demorar","aminorar"]},
+ {p:"Instrumento de percusión que se toca con palillos",r:["bateria","tambor","redoblante"]},
+ {p:"Es poner la firma en un papel",r:["firmar","rubricar"]},
+ {p:"Persona que cultiva la tierra",r:["agricultor","campesino","chacarero","productor"]},
+ {p:"Es hacer que dos cosas queden unidas con pegamento",r:["pegar","adherir","encolar"]},
+ {p:"Parte de la planta que crece bajo tierra",r:["raiz"]},
+ {p:"Es sentir la falta de alguien querido",r:["extraniar","aniorar","extrañar","añorar"]},
+ {p:"Es dejar caer un líquido de a gotas",r:["gotear"]},
+ {p:"Lugar donde se exhiben obras de arte",r:["museo","galeria"]},
+ {p:"Aparato que calienta un ambiente",r:["estufa","calefactor","radiador"]},
+ {p:"Es andar a caballo",r:["cabalgar","galopar","montar"]},
+ {p:"Lugar donde se guarda y añeja el vino",r:["bodega","cava"]},
+ {p:"Es cortar las ramas de una planta",r:["podar"]},
+ {p:"Persona que hace y vende pan",r:["panadero","panadera"]},
+ {p:"Es llamar a mucha gente para que se reúna",r:["convocar","reunir","juntar","citar"]},
+ {p:"Es abandonar una competencia antes del final",r:["retirarse","abandonar","renunciar"]},
+ {p:"Es escuchar u observar a escondidas",r:["espiar","fisgonear"]},
+ {p:"Movimiento brusco de la corteza terrestre",r:["terremoto","sismo","temblor"]},
+ {p:"Persona que arregla zapatos",r:["zapatero","zapatera","remendon"]},
+ {p:"Es caminar sin rumbo fijo",r:["vagar","deambular","errar","merodear"]},
+ {p:"Recipiente donde se planta una flor",r:["maceta","macetero"]},
+ {p:"Insecto que produce miel",r:["abeja"]},
+ {p:"Es hablar mal de alguien que no está",r:["criticar","difamar"]},
+ {p:"Lugar donde se toma el tren",r:["estacion","anden"]},
+ {p:"Es transmitir conocimiento a un alumno",r:["ensenar","enseñar","instruir","educar"]},
+ {p:"Prenda que abriga por encima de la ropa",r:["abrigo","tapado","campera","saco"]},
+ {p:"Es tomar una imagen con la cámara",r:["fotografiar","retratar"]},
+ {p:"Es opinar igual que otra persona",r:["coincidir","concordar","acordar"]},
+ {p:"Órgano con el que respiramos",r:["pulmon","pulmones"]},
+ {p:"Lugar donde se alojan los turistas",r:["hotel","hosteria","hostal","posada"]},
+ {p:"Persona que apaga incendios",r:["bombero","bombera"]},
+ {p:"Es entrar por la fuerza en un lugar ajeno",r:["invadir","irrumpir","allanar"]},
+ {p:"Fruta grande de cáscara verde y pulpa roja",r:["sandia"]},
+ {p:"Es unir dos cables entre sí",r:["conectar","empalmar","enchufar"]},
+ {p:"Es decir en voz alta algo para que otro lo escriba",r:["dictar"]},
+ {p:"Animal de carga que tiene joroba",r:["camello","dromedario"]},
+ {p:"Es cerrar y abrir los ojos rápido",r:["parpadear","pestaniear","pestañear"]},
+ {p:"Herramienta con dientes para cortar madera",r:["serrucho","sierra"]},
+ {p:"Es cambiar una cosa por otra",r:["canjear","intercambiar","trocar","permutar","cambiar"]},
+ {p:"Persona que dirige una película",r:["director","cineasta","realizador"]},
+ {p:"Es elegir entre varias opciones",r:["decidir","resolver","optar","elegir"]},
+ {p:"Lugar donde se cursa una carrera universitaria",r:["facultad","universidad"]},
+ {p:"Es sacar el aire de los pulmones",r:["exhalar","espirar","soplar"]},
+ {p:"Es enterarse de algo que estaba oculto",r:["descubrir","averiguar","revelar"]},
+ {p:"Prenda que se usa en los pies debajo del calzado",r:["medias","calcetines"]},
+ {p:"Es llevar un líquido hasta que burbujee",r:["hervir"]},
+ {p:"Persona que cuida la entrada de un edificio",r:["portero","encargado","conserje"]},
+ {p:"Es sacar copias de un documento",r:["fotocopiar","copiar","duplicar"]},
+ {p:"Caída de agua desde una altura",r:["cascada","catarata","salto"]},
+ {p:"Es dar dinero esperando que lo devuelvan",r:["prestar"]},
+ {p:"Es meter algo en agua por completo",r:["sumergir","hundir","zambullir"]},
+ {p:"Persona que traduce en tiempo real lo que otro dice",r:["interprete"]},
+ {p:"Es dar vueltas alrededor de un planeta",r:["orbitar"]},
+ {p:"Es hacer sonar las palmas para aplaudir",r:["aplaudir"]},
+ {p:"Papel que permite entrar a un espectáculo",r:["entrada","ticket","boleto"]},
+ {p:"Es sacar a alguien de un peligro",r:["rescatar","salvar","socorrer"]},
+ {p:"Persona que estudia el pasado",r:["historiador","arqueologo"]},
+ {p:"Es guardar un lugar para más adelante",r:["reservar"]},
+ {p:"Es dar valor o importancia a algo",r:["valorar","apreciar","estimar"]},
+ {p:"Recipiente donde se sirve la sopa",r:["plato","bol","cazuela"]},
+ {p:"Es levantar la voz con enojo",r:["gritar","vociferar"]},
+ {p:"Es dejar sin efecto un contrato",r:["anular","rescindir","cancelar"]},
+ {p:"Aparato que sirve para pesar",r:["balanza","bascula"]},
+ {p:"Es correr detrás de alguien para alcanzarlo",r:["perseguir","seguir","corretear"]},
+ {p:"Persona que arregla instalaciones eléctricas",r:["electricista"]},
+ {p:"Es poner algo boca abajo",r:["voltear","invertir","dar vuelta","girar"]},
+ {p:"Es repartir algo entre varios",r:["repartir","distribuir","dividir"]},
+ {p:"Instrumento con teclas blancas y negras",r:["piano","teclado"]}
+],
+incompleta:[
+ {p:"Sirve para peinarse",r:["peine"]},
+ {p:"Se pone en la cabeza para el sol",r:["sombrero"]},
+ {p:"Cubierto con puntas",r:["tenedor"]},
+ {p:"Deporte que se juega con raqueta y red",r:["tenis"]},
+ {p:"El rey de la selva",r:["leon"]},
+ {p:"Se mira para saber la hora",r:["reloj"]},
+ {p:"Se escribe con ella en el pizarrón",r:["tiza"]},
+ {p:"Sirve para cortar papel",r:["tijera"]},
+ {p:"Se soplan en la torta de cumpleaños",r:["velas"]},
+ {p:"Sale ardiendo del volcán",r:["lava"]},
+ {p:"Insecto que teje telarañas",r:["araña"]},
+ {p:"Se usa para escribir a mano",r:["lapicera"]},
+ {p:"Instrumento de viento de metal",r:["trompeta"]},
+ {p:"Se llena de agua para nadar en casa",r:["pileta"]},
+ {p:"Cubre el piso del living",r:["alfombra"]},
+ {p:"Sirve para secarse después del baño",r:["toalla"]},
+ {p:"Fruta chiquita y roja de postre",r:["frutilla"]},
+ {p:"Vehículo que apaga incendios",r:["autobomba"]},
+ {p:"Se pone en las ventanas para tapar la luz",r:["cortina"]},
+ {p:"Da leche en el campo",r:["vaca"]},
+ {p:"Se abre para entrar a una habitación",r:["puerta"]},
+ {p:"Se usa para llamar por teléfono desde el bolsillo",r:["celular"]},
+ {p:"Guarda la ropa doblada",r:["cajon"]},
+ {p:"Sirve para clavar la carne en la parrilla",r:["pinche"]},
+ {p:"Se pone en la ensalada junto al aceite",r:["vinagre"]}
+],
+anagrama:[
+ {p:"Se usa para trabajar y navegar",r:["computadora"]},
+ {p:"Máxima autoridad de un país",r:["presidente"]},
+ {p:"Ahí se estudia una carrera",r:["universidad"]},
+ {p:"De ahí despegan los aviones",r:["aeropuerto"]},
+ {p:"Ahí se come afuera",r:["restaurante"]},
+ {p:"Ahí se hace la compra grande",r:["supermercado"]},
+ {p:"Por ahí circula el tren",r:["ferrocarril"]},
+ {p:"Tiene todas las letras en orden",r:["abecedario"]},
+ {p:"Animal gigante y extinguido",r:["dinosaurio"]},
+ {p:"Cubre el piso del living",r:["alfombra"]},
+ {p:"Cubierto con puntas",r:["tenedor"]},
+ {p:"Se pone en la cabeza",r:["sombrero"]},
+ {p:"Golosina dulce y chiquita",r:["caramelo"]},
+ {p:"Escribe las noticias",r:["periodista"]},
+ {p:"Diseña edificios",r:["arquitecto"]},
+ {p:"Diseña máquinas y puentes",r:["ingeniero"]},
+ {p:"Conjunto grande de músicos",r:["orquesta"]},
+ {p:"Viene con truenos y lluvia",r:["tormenta"]},
+ {p:"Salto de agua enorme",r:["catarata"]},
+ {p:"Factura típica del desayuno argentino",r:["medialuna"]},
+ {p:"Se rellena de carne y se hornea",r:["empanada"]},
+ {p:"Prenda con el número del jugador",r:["camiseta"]},
+ {p:"Insecto chiquito que trabaja en fila",r:["hormiga"]},
+ {p:"Reptil de río con muchos dientes",r:["cocodrilo"]},
+ {p:"Se pega en la pared para decorar",r:["cuadro"]}
+],
+vf:[
+ {p:"La Antártida es técnicamente un desierto.",v:true,n:"Casi no tiene precipitaciones."},
+ {p:"El vidrio se fabrica principalmente con arena.",v:true,n:""},
+ {p:"Los delfines duermen con medio cerebro por vez.",v:true,n:"Así siguen subiendo a respirar."},
+ {p:"El agua hierve a cien grados sin importar la altura.",v:false,n:"En altura hierve a menor temperatura."},
+ {p:"Marte se ve rojizo por el óxido de hierro de su suelo.",v:true,n:""},
+ {p:"Argentina ganó tres Copas del Mundo de fútbol.",v:true,n:"1978, 1986 y 2022."},
+ {p:"El río Nilo atraviesa Sudamérica.",v:false,n:"Está en África."},
+ {p:"Los tiburones son mamíferos.",v:false,n:"Son peces cartilaginosos."},
+ {p:"Un kilo de plumas pesa menos que un kilo de plomo.",v:false,n:"Un kilo es un kilo."},
+ {p:"El sonido viaja más rápido que la luz.",v:false,n:"La luz es muchísimo más veloz."},
+ {p:"Los pulpos tienen tres corazones.",v:true,n:""},
+ {p:"Yuri Gagarin fue el primer humano en viajar al espacio.",v:true,n:"En 1961."},
+ {p:"El bambú es una hierba y no un árbol.",v:true,n:"Es la hierba más alta del mundo."},
+ {p:"Los pingüinos pueden volar.",v:false,n:"Nadan; sus alas son aletas."},
+ {p:"Más de la mitad del cuerpo humano es agua.",v:true,n:""},
+ {p:"La Gran Barrera de Coral está frente a las costas de Brasil.",v:false,n:"Está en Australia."},
+ {p:"El chocolate se hace con semillas de cacao.",v:true,n:""},
+ {p:"La jirafa tiene la misma cantidad de vértebras en el cuello que una persona.",v:true,n:"Siete, pero enormes."},
+ {p:"El acero es una mezcla de hierro y carbono.",v:true,n:""},
+ {p:"Los caracoles tienen dientes.",v:true,n:"Miles, en una lengua llamada rádula."},
+ {p:"La Patagonia abarca territorio argentino y chileno.",v:true,n:""},
+ {p:"El oxígeno es el gas más abundante de la atmósfera.",v:false,n:"Es el nitrógeno, con casi el 78%."},
+ {p:"La Torre Eiffel está en Roma.",v:false,n:"Está en París."},
+ {p:"El Sol gira alrededor de la Tierra.",v:false,n:"Es al revés."},
+ {p:"La sal de mesa es cloruro de sodio.",v:true,n:""},
+ {p:"Las plantas también respiran de noche.",v:true,n:"Respiran siempre; de día además hacen fotosíntesis."}
+],
+opcion:[
+ {p:"¿Cuántas provincias tiene la Argentina?",o:["21","22","23","24"],i:2},
+ {p:"¿Qué río pasa por la ciudad de Rosario?",o:["Uruguay","Paraná","Bermejo","Salado"],i:1},
+ {p:"¿En qué año se declaró la Independencia argentina?",o:["1810","1816","1820","1853"],i:1},
+ {p:"¿Dónde está el glaciar Perito Moreno?",o:["Chubut","Neuquén","Santa Cruz","Tierra del Fuego"],i:2},
+ {p:"¿Cuál es la capital de Uruguay?",o:["Asunción","Montevideo","Santiago","La Paz"],i:1},
+ {p:"¿Quién escribió el Martín Fierro?",o:["Leopoldo Lugones","José Hernández","Esteban Echeverría","Domingo Sarmiento"],i:1},
+ {p:"¿Cuál es el planeta más cercano al Sol?",o:["Venus","Mercurio","Marte","Tierra"],i:1},
+ {p:"¿En qué país está Machu Picchu?",o:["Bolivia","Ecuador","Perú","Chile"],i:2},
+ {p:"¿Qué órgano produce la insulina?",o:["Hígado","Páncreas","Riñón","Bazo"],i:1},
+ {p:"¿Cuántas cuerdas tiene una guitarra clásica?",o:["4","5","6","7"],i:2},
+ {p:"¿Quién pintó La Gioconda?",o:["Miguel Ángel","Rafael","Leonardo da Vinci","Botticelli"],i:2},
+ {p:"¿Cuál es el país más extenso del mundo?",o:["China","Canadá","Rusia","Estados Unidos"],i:2},
+ {p:"¿En qué año llegó el hombre a la Luna?",o:["1961","1969","1972","1958"],i:1},
+ {p:"¿Cuál es la capital de Japón?",o:["Osaka","Kioto","Tokio","Nagoya"],i:2},
+ {p:"¿Cuántos días tiene un año bisiesto?",o:["364","365","366","367"],i:2},
+ {p:"¿Qué deporte hizo famoso a Manu Ginóbili?",o:["Tenis","Básquet","Vóley","Handball"],i:1},
+ {p:"¿Cuál de estos es el mar más salado?",o:["Mar Rojo","Mar Muerto","Mar Caspio","Mar Negro"],i:1},
+ {p:"¿Con qué instrumento escucha el médico el corazón?",o:["Otoscopio","Estetoscopio","Tensiómetro","Oxímetro"],i:1},
+ {p:"¿Cuál es la moneda del Reino Unido?",o:["Euro","Libra esterlina","Corona","Franco"],i:1},
+ {p:"¿Quién escribió Cien años de soledad?",o:["Mario Vargas Llosa","Gabriel García Márquez","Pablo Neruda","Juan Rulfo"],i:1},
+ {p:"¿Cuál es el animal más rápido del mundo?",o:["Guepardo","Halcón peregrino","Pez vela","Avestruz"],i:1},
+ {p:"¿Qué gas forma la mayor parte del aire?",o:["Oxígeno","Nitrógeno","Argón","Dióxido de carbono"],i:1},
+ {p:"¿Cuál es la selva más extensa del planeta?",o:["Del Congo","Amazonas","De Borneo","Yungas"],i:1},
+ {p:"¿Quién escribió Don Quijote de la Mancha?",o:["Lope de Vega","Cervantes","Quevedo","Góngora"],i:1},
+ {p:"¿Cuál es la capital de Chile?",o:["Valparaíso","Concepción","Santiago","Antofagasta"],i:2},
+ {p:"¿Cuántos jugadores tiene un equipo de básquet en cancha?",o:["4","5","6","7"],i:1},
+ {p:"¿Qué elemento representa el símbolo Au?",o:["Plata","Oro","Aluminio","Cobre"],i:1},
+ {p:"¿En qué provincia está Bariloche?",o:["Neuquén","Río Negro","Chubut","Mendoza"],i:1},
+ {p:"¿Cuál es el hueso que va del hombro al codo?",o:["Cúbito","Radio","Húmero","Clavícula"],i:2},
+ {p:"¿Qué provincia argentina produce más vino?",o:["San Juan","Mendoza","Salta","Río Negro"],i:1},
+ {p:"¿Cuál es el punto más austral de América continental?",o:["Ushuaia","Cabo de Hornos","Punta Arenas","Río Gallegos"],i:1},
+ {p:"¿Qué metal conduce mejor la electricidad?",o:["Cobre","Plata","Oro","Aluminio"],i:1},
+ {p:"¿Cuál es la montaña más alta del mundo?",o:["K2","Everest","Aconcagua","Kilimanjaro"],i:1},
+ {p:"¿Qué vitamina se produce con la exposición al sol?",o:["Vitamina A","Vitamina C","Vitamina D","Vitamina K"],i:2},
+ {p:"¿En qué ciudad nació el Che Guevara?",o:["Córdoba","Rosario","Buenos Aires","Santa Fe"],i:1},
+ {p:"¿Cuántos lados tiene un rombo?",o:["3","4","5","6"],i:1},
+ {p:"¿Qué escritora argentina escribió Cuentos de amor, de locura y de muerte?",o:["Alfonsina Storni","Silvina Ocampo","Ninguna: lo escribió Horacio Quiroga","Victoria Ocampo"],i:2},
+ {p:"¿Cuál es el idioma con más hablantes nativos del mundo?",o:["Inglés","Español","Chino mandarín","Hindi"],i:2},
+ {p:"¿Qué provincia argentina limita con Bolivia y Chile a la vez?",o:["Salta","Jujuy","Catamarca","Formosa"],i:1},
+ {p:"¿Qué provincia argentina tiene la costa atlántica más extensa de la región pampeana?",o:["Río Negro","Buenos Aires","Santa Fe","Entre Ríos"],i:1}
+],
+categoria:[
+ {p:"Nombrá 3 provincias del noroeste argentino",n:3,r:["salta","jujuy","tucuman","catamarca","santiago del estero","la rioja"]},
+ {p:"Nombrá 3 océanos",n:3,r:["pacifico","atlantico","indico","artico","antartico","glacial artico","glacial antartico"]},
+ {p:"Nombrá 3 verduras",n:3,r:["zanahoria","papa","cebolla","lechuga","tomate","zapallo","acelga","espinaca","brocoli","choclo","morron","pimiento","remolacha","zapallito","berenjena","apio","puerro","batata","calabaza","repollo","coliflor"]},
+ {p:"Nombrá 3 instrumentos de viento",n:3,r:["flauta","trompeta","saxo","saxofon","clarinete","trombon","oboe","fagot","tuba","corno","armonica","quena","siku"]},
+ {p:"Nombrá 3 animales de granja",n:3,r:["vaca","gallina","cerdo","chancho","caballo","oveja","cabra","pato","gallo","conejo","ganso","pavo","burro","toro"]},
+ {p:"Nombrá 3 países de Europa",n:3,r:["espania","españa","francia","italia","alemania","portugal","grecia","suiza","austria","belgica","holanda","paises bajos","polonia","suecia","noruega","dinamarca","irlanda","inglaterra","reino unido","rusia","ucrania","hungria","rumania","croacia","serbia","finlandia","republica checa"]},
+ {p:"Nombrá 3 meses del año",n:3,r:["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","setiembre","octubre","noviembre","diciembre"]},
+ {p:"Nombrá 3 signos del zodíaco",n:3,r:["aries","tauro","geminis","cancer","leo","virgo","libra","escorpio","escorpion","sagitario","capricornio","acuario","piscis"]},
+ {p:"Nombrá 3 deportes que se practican en el agua",n:3,r:["natacion","waterpolo","water polo","surf","remo","canotaje","kayak","vela","buceo","nado sincronizado","polo acuatico","windsurf","kitesurf"]},
+ {p:"Nombrá 3 partes de un auto",n:3,r:["volante","rueda","ruedas","motor","puerta","espejo","freno","acelerador","parabrisas","baul","capot","asiento","neumatico","cubierta","paragolpes","embrague","caja","faro","luces","tablero","bateria","escape"]},
+ {p:"Nombrá 3 materiales que se reciclan",n:3,r:["papel","carton","vidrio","plastico","aluminio","metal","lata","latas","madera","tela","pilas"]},
+ {p:"Nombrá 3 idiomas",n:3,r:["espaniol","español","castellano","ingles","frances","italiano","portugues","aleman","chino","mandarin","japones","ruso","arabe","hindi","coreano","griego","hebreo","guarani","quechua"]},
+ {p:"Nombrá 3 postres típicos argentinos",n:3,r:["flan","alfajor","alfajores","dulce de leche","panqueque","panqueques","budin","chocotorta","vigilante","queso y dulce","arroz con leche","postre balcarce","pastafrola","rogel","tiramisu","helado","torta","mazamorra"]},
+ {p:"Nombrá 3 ríos de la Argentina",n:3,r:["parana","uruguay","de la plata","rio de la plata","paraguay","colorado","negro","salado","bermejo","pilcomayo","limay","neuquen","chubut","santa cruz","iguazu","dulce","atuel","desaguadero","gualeguay","carcarania"]},
+ {p:"Nombrá 3 clubes de fútbol argentinos",n:3,r:["boca","boca juniors","river","river plate","independiente","racing","san lorenzo","velez","huracan","estudiantes","gimnasia","newells","newells old boys","rosario central","lanus","banfield","talleres","belgrano","colon","union","argentinos juniors","platense","tigre","defensa y justicia","atletico tucuman","godoy cruz","instituto","barracas central","sarmiento","central cordoba","riestra","aldosivi"]},
+ {p:"Nombrá 3 herramientas de taller",n:3,r:["martillo","destornillador","pinza","llave","serrucho","taladro","sierra","alicate","lima","cincel","nivel","metro","escuadra","amoladora","soldadora","tenaza"]}
+],
+sinonimo:[
+ {p:"Un sinónimo de bonito",r:["lindo","hermoso","bello","precioso","agraciado"]},
+ {p:"Un antónimo de fuerte",r:["debil","flojo","endeble"]},
+ {p:"Un sinónimo de grande",r:["enorme","gigante","inmenso","vasto","amplio","descomunal"]},
+ {p:"Un antónimo de temprano",r:["tarde","tardio"]},
+ {p:"Un sinónimo de callado",r:["silencioso","reservado","mudo","taciturno"]},
+ {p:"Un antónimo de duro",r:["blando","suave","tierno","mullido"]},
+ {p:"Un sinónimo de barato",r:["economico","accesible","asequible"]},
+ {p:"Un antónimo de comprar",r:["vender"]},
+ {p:"Un sinónimo de terminar",r:["finalizar","concluir","acabar","culminar","clausurar"]},
+ {p:"Un antónimo de ganar",r:["perder"]},
+ {p:"Un sinónimo de amable",r:["cordial","atento","gentil","simpatico","afable"]},
+ {p:"Un antónimo de sucio",r:["limpio","pulcro","aseado"]},
+ {p:"Un sinónimo de viejo",r:["anciano","antiguo","veterano","aniejo","añejo"]},
+ {p:"Un antónimo de encontrar",r:["perder","extraviar"]},
+ {p:"Un sinónimo de correr",r:["trotar","galopar","apurarse","huir"]},
+ {p:"Un antónimo de aceptar",r:["rechazar","negar","denegar","repudiar"]},
+ {p:"Un sinónimo de pena",r:["tristeza","dolor","congoja","lastima","aflicion"]},
+ {p:"Un antónimo de dulce",r:["amargo","salado","agrio"]},
+ {p:"Un sinónimo de error",r:["equivocacion","falla","fallo","yerro","desacierto"]},
+ {p:"Un antónimo de máximo",r:["minimo"]},
+ {p:"Un sinónimo de cansado",r:["agotado","exhausto","fatigado","rendido","extenuado"]},
+ {p:"Un antónimo de juntar",r:["separar","dispersar","desunir","apartar"]},
+ {p:"Un sinónimo de mostrar",r:["exhibir","ensenar","enseñar","exponer","presentar"]},
+ {p:"Un antónimo de entrar",r:["salir"]},
+ {p:"Un sinónimo de peligro",r:["riesgo","amenaza"]},
+ {p:"Un antónimo de abrir",r:["cerrar","clausurar"]},
+ {p:"Un sinónimo de tonto",r:["torpe","necio","bobo","zonzo","tarado"]},
+ {p:"Un antónimo de rico",r:["pobre","carente"]},
+ {p:"Un sinónimo de guardar",r:["almacenar","conservar","atesorar","depositar"]},
+ {p:"Un antónimo de alegría",r:["tristeza","pena","dolor","congoja"]}
+]
+};
+Object.keys(EXTRA).forEach(k=>{ if(BANCO[k]) BANCO[k].items = BANCO[k].items.concat(EXTRA[k]); });
+
+/* ===================== UTILIDADES ===================== */
+const $ = s => document.querySelector(s);
+const norm = t => (t||"").toString().toLowerCase().normalize("NFD")
+  .replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g,"").replace(/\s+/g," ").trim();
+const mezclar = a => { const c=a.slice(); for(let i=c.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[c[i],c[j]]=[c[j],c[i]];} return c; };
+const plata = n => "$" + n.toLocaleString("es-AR");
+const TIPOS = Object.keys(BANCO);
+
+function acierta(texto, item){
+  const t = norm(texto);
+  if(!t) return false;
+  return item.r.some(r => norm(r) === t);
+}
+function respuestaVisible(item){
+  return item.r[0].toUpperCase();
+}
+// máscara estable para "palabra incompleta"
+function enmascarar(palabra){
+  const l = palabra.toUpperCase().split("");
+  return l.map((c,i)=> (i===0 || i===l.length-1 || i%3===1) ? c : "_").join(" ");
+}
+function desordenar(palabra){
+  const l = palabra.toUpperCase().split("");
+  let s = mezclar(l).join(" ");
+  if(norm(s.replace(/ /g,"")) === norm(palabra)) s = mezclar(l).join(" ");
+  return s;
+}
+function tomar(tipo){
+  const b = BANCO[tipo].items;
+  return {...b[Math.random()*b.length|0], tipo};
+}
+function tomarVarias(cant, tipos){
+  const pool=[];
+  tipos.forEach(t => BANCO[t].items.forEach(i => pool.push({...i, tipo:t})));
+  return mezclar(pool).slice(0, cant);
+}
+
+/* ---- estadísticas (opcionales, tolerantes a fallo) ---- */
+let stats = {};
+TIPOS.forEach(t => stats[t] = {bien:0, total:0});
+async function cargarStats(){
+  try{
+    const r = await window.storage.get("ahoracaigo:stats");
+    if(r && r.value){ const g = JSON.parse(r.value); TIPOS.forEach(t=>{ if(g[t]) stats[t]=g[t]; }); }
+  }catch(e){ /* sin almacenamiento: seguimos en memoria */ }
+  pintarAciertos();
+}
+async function guardarStats(){
+  try{ await window.storage.set("ahoracaigo:stats", JSON.stringify(stats)); }catch(e){}
+}
+function anotar(tipo, ok){
+  if(!stats[tipo]) stats[tipo]={bien:0,total:0};
+  stats[tipo].total++; if(ok) stats[tipo].bien++;
+  pintarAciertos(); guardarStats();
+}
+function pintarAciertos(){
+  document.querySelectorAll("[data-acierto]").forEach(el=>{
+    const t = el.getAttribute("data-acierto"); const s = stats[t];
+    el.textContent = s && s.total ? Math.round(s.bien/s.total*100)+"% en "+s.total : "sin datos";
+  });
+}
+
+/* ===================== RONDA DEL HERO ===================== */
+(function heroInit(){
+  const ul = $("#compuertasHero");
+  for(let i=0;i<11;i++){
+    const li = document.createElement("li");
+    li.className="compuerta";
+    if(i===5) li.setAttribute("data-vos","si");
+    ul.appendChild(li);
+  }
+  const tiles=[...ul.children];
+  let abiertas=0;
+  const abrir = setInterval(()=>{
+    const libres = tiles.filter(t=>t.getAttribute("data-vos")!=="si" && t.getAttribute("data-abierta")!=="si");
+    if(!libres.length || abiertas>=6){ clearInterval(abrir); return; }
+    libres[Math.random()*libres.length|0].setAttribute("data-abierta","si");
+    abiertas++;
+  }, 900);
+})();
+
+let heroItem=null, heroTimer=null, heroRestante=0, heroBloqueado=false;
+function heroNueva(){
+  const r = $("#rondaHero");
+  r.removeAttribute("data-cae");
+  heroBloqueado=false;
+  heroItem = tomar("definicion");
+  $("#juegoHero").textContent = "Definición";
+  $("#consignaHero").textContent = heroItem.p;
+  $("#veredictoHero").textContent = ""; $("#veredictoHero").removeAttribute("data-tipo");
+  $("#cuerpoHero").innerHTML =
+    '<div class="responder"><input type="text" id="inputHero" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribí la palabra" aria-label="Tu respuesta">'+
+    '<button class="btn" id="btnHero">Responder</button></div>';
+  $("#btnHero").addEventListener("click", heroResolver);
+  $("#inputHero").addEventListener("keydown", e => { if(e.key==="Enter") heroResolver(); });
+  heroRestante = 15; heroTick();
+  clearInterval(heroTimer);
+  heroTimer = setInterval(()=>{ heroRestante--; heroTick(); if(heroRestante<=0) heroResolver(true); }, 1000);
+}
+function heroTick(){
+  const urg = heroRestante<=5 ? "si" : "no";
+  $("#relojHero").textContent = Math.max(heroRestante,0)+"s";
+  $("#relojHero").setAttribute("data-urgente",urg);
+  $("#barraHero").style.width = Math.max(heroRestante,0)/15*100+"%";
+  $("#barraHero").setAttribute("data-urgente",urg);
+}
+function heroResolver(porTiempo){
+  if(heroBloqueado) return;
+  heroBloqueado=true; clearInterval(heroTimer);
+  const val = porTiempo===true ? "" : $("#inputHero").value;
+  const ok = acierta(val, heroItem);
+  const v = $("#veredictoHero");
+  anotar("definicion", ok);
+  if(ok){
+    v.setAttribute("data-tipo","bien");
+    v.innerHTML = "Seguís arriba. <small>"+respuestaVisible(heroItem)+"</small>";
+    setTimeout(heroNueva, 1300);
+  }else{
+    v.setAttribute("data-tipo","mal");
+    v.innerHTML = (porTiempo===true?"Se acabó el tiempo.":"Caíste.")+" <small>Era "+respuestaVisible(heroItem)+".</small>";
+    setTimeout(()=>{ $("#rondaHero").setAttribute("data-cae","si"); }, 700);
+    setTimeout(heroNueva, 1900);
+  }
+}
+heroNueva();
+
+/* ===================== TARJETAS DE JUEGOS ===================== */
+(function tarjetas(){
+  const cont = $("#grillaJuegos");
+  TIPOS.forEach(t=>{
+    const j = BANCO[t];
+    const d = document.createElement("article");
+    d.className="tarjeta";
+    d.innerHTML =
+      "<h3>"+j.nombre+"</h3><p>"+j.desc+"</p>"+
+      '<p class="ejemplo">'+j.ejemplo+"</p>"+
+      '<div class="tacto"><span class="acierto" data-acierto="'+t+'">sin datos</span>'+
+      '<button class="btn btn--chico" data-practicar="'+t+'">Practicar</button></div>';
+    cont.appendChild(d);
+  });
+  cont.addEventListener("click", e=>{
+    const b = e.target.closest("[data-practicar]");
+    if(b) abrirArena("practica", b.getAttribute("data-practicar"));
+  });
+})();
+
+/* ===================== VOZ ===================== */
+const TTS = window.speechSynthesis || null;
+const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const ORIGEN_LOCAL = (location.protocol === "file:");
+const MIC_POSIBLE = !!SRClass;
+const AYUDA_LOCAL = "Chrome no puede recordar el permiso de micrófono en archivos abiertos con doble clic: te lo va a preguntar cada vez. Para que quede fijo, abrí una terminal en la carpeta, corré  python -m http.server 8000  y entrá a http://localhost:8000.";
+let vozSalida = false, vozEntrada = false;
+let voces = [], vozEs = null, rec = null, recActivo = false;
+
+function cargarVoces(){
+  if(!TTS) return;
+  voces = TTS.getVoices() || [];
+  vozEs = voces.find(v=>/es[-_]AR/i.test(v.lang))
+       || voces.find(v=>/es[-_](419|MX|US|CL|UY|CO)/i.test(v.lang))
+       || voces.find(v=>/^es/i.test(v.lang)) || null;
+}
+if(TTS){ cargarVoces(); TTS.addEventListener("voiceschanged", cargarVoces); }
+
+function hablar(texto, cb, rate){
+  if(!vozSalida || !TTS){ setTimeout(()=>cb&&cb(), 120); return; }
+  try{ TTS.cancel(); }catch(e){}
+  const u = new SpeechSynthesisUtterance(texto);
+  if(vozEs){ u.voice = vozEs; u.lang = vozEs.lang; } else { u.lang = "es-AR"; }
+  u.rate = rate || 1.03;
+  let cerrado = false;
+  const fin = ()=>{ if(cerrado) return; cerrado = true; cb && cb(); };
+  u.onend = fin; u.onerror = fin;
+  try{ TTS.speak(u); }catch(e){ fin(); return; }
+  setTimeout(fin, Math.min(900 + texto.length*100, 16000));
+}
+function callar(){ if(TTS){ try{ TTS.cancel(); }catch(e){} } }
+
+function aviso(txt){ const a = $("#avisoVoz"); if(a) a.textContent = txt || ""; }
+function pintarChips(){
+  const a = $("#chipHabla"), b = $("#chipEscucha");
+  a.setAttribute("data-on", vozSalida?"si":"no"); a.setAttribute("aria-pressed", vozSalida?"true":"false");
+  b.setAttribute("data-on", vozEntrada?"si":"no"); b.setAttribute("aria-pressed", vozEntrada?"true":"false");
+  b.setAttribute("data-escuchando", recActivo?"si":"no");
+}
+if(!TTS){ $("#chipHabla").disabled = true; $("#chipHabla").title = "Este navegador no lee en voz alta"; }
+if(!MIC_POSIBLE){
+  const c = $("#chipEscucha");
+  c.disabled = true;
+  c.title = "El dictado por voz necesita Chrome o Edge";
+  c.innerHTML = '<span class="punto"></span>Sin dictado';
+}
+
+$("#chipHabla").addEventListener("click", ()=>{
+  vozSalida = !vozSalida; pintarChips();
+  if(vozSalida){ aviso(""); hablar("Listo. Te leo las consignas."); }
+  else callar();
+});
+$("#chipEscucha").addEventListener("click", ()=>{
+  if(!SRClass){ aviso("Tu navegador no tiene dictado por voz. Probá con Chrome o Edge."); return; }
+  vozEntrada = !vozEntrada; pintarChips();
+  if(vozEntrada) aviso(ORIGEN_LOCAL ? AYUDA_LOCAL : "Cuando termine la consigna, hablá. El micrófono se enciende solo.");
+  else { pararEscucha(); aviso(""); }
+});
+
+function escuchar(alRecibir, continuo, alInterim){
+  if(!vozEntrada || !SRClass) return;
+  pararEscucha();
+  try{ rec = new SRClass(); }catch(e){ return; }
+  rec.lang = "es-AR";
+  rec.interimResults = !!alInterim;
+  rec.continuous = !!continuo;
+  rec.maxAlternatives = 5;
+  rec.onresult = e=>{
+    const r = e.results[e.results.length-1];
+    const alts = [];
+    for(let k=0;k<r.length;k++) alts.push(r[k].transcript);
+    if(!r.isFinal){ alInterim && alInterim(alts[0]); return; }
+    alRecibir(alts);
+  };
+  rec.onerror = e=>{
+    recActivo = false; pintarChips();
+    if(e.error === "not-allowed" || e.error === "service-not-allowed"){
+      vozEntrada = false; pintarChips();
+      aviso(ORIGEN_LOCAL ? AYUDA_LOCAL : "El navegador bloqueó el micrófono. Revisá el candado de la barra de direcciones y permitilo.");
+    }else if(e.error === "network"){
+      aviso("El dictado necesita conexión a internet.");
+    }
+  };
+  rec.onend = ()=>{ recActivo = false; pintarChips(); };
+  try{ rec.start(); recActivo = true; pintarChips(); }catch(e){ recActivo = false; }
+}
+function pararEscucha(){
+  if(rec){ try{ rec.onend = null; rec.stop(); }catch(e){} try{ rec.abort(); }catch(e){} rec = null; }
+  recActivo = false; pintarChips();
+}
+const RELLENO = /^(este|eh|em|mmm|a ver|creo que|yo digo|digo|dije|seria|es|son|la|el|los|las|un|una|lo)\s+/;
+function variantes(t){
+  const base = norm(t);
+  const sin = base.replace(RELLENO,"").trim();
+  return sin && sin !== base ? [base, sin] : [base];
+}
+function aciertaDicho(alts, item){
+  return alts.some(a => variantes(a).some(v => item.r.some(r => norm(r) === v)));
+}
+function deletrear(p){ return p.toUpperCase().split("").join(", "); }
+
+/* texto que se lee en voz alta según el juego */
+function guion(it){
+  if(it.tipo === "vf")        return "Verdadero o falso. " + it.p;
+  if(it.tipo === "opcion")    return it.p + " Opción A: " + it.o[0] + ". Opción B: " + it.o[1] + ". Opción C: " + it.o[2] + ". Opción D: " + it.o[3] + ".";
+  if(it.tipo === "incompleta")return it.p + ". La palabra tiene " + it.r[0].length + " letras y empieza con " + it.r[0][0].toUpperCase() + ".";
+  if(it.tipo === "anagrama")  return it.p + ". Las letras son: " + deletrear(it.r[0]) + ".";
+  if(it.tipo === "categoria") return it.p + ".";
+  return it.p;
+}
+
+/* ===================== ARENA ===================== */
+const arena = $("#arena"), cuerpo = $("#arenaCuerpo"), marcador = $("#marcador");
+let S = null, tGlobal = null, tPregunta = null, tGuion = null;
+const NOMBRES = ["Marcela","Gustavo","Rocío","Fede","Julieta","Nahuel","Vicky","Ramiro","Belén","Tato"];
+
+$("#btnCerrar").addEventListener("click", cerrarArena);
+document.addEventListener("keydown", e=>{ if(e.key === "Escape" && arena.getAttribute("data-abierta") === "si") cerrarArena(); });
+document.querySelectorAll("[data-modo]").forEach(b=>
+  b.addEventListener("click", ()=> abrirArena(b.getAttribute("data-modo"))));
+
+function cerrarArena(){
+  clearInterval(tGlobal); clearInterval(tPregunta); clearTimeout(tGuion);
+  callar(); pararEscucha();
+  arena.removeAttribute("data-abierta");
+  document.body.style.overflow = "";
+  marcador.innerHTML = ""; aviso("");
+  S = null;
+}
+function abrirArena(modo, tipo){
+  clearInterval(tGlobal); clearInterval(tPregunta); clearTimeout(tGuion);
+  S = {modo, tipo, i:0, bien:0, fallos:[], pozo:0, restante:0, bloqueado:false, item:null, fichas:[], contexto:"suelto"};
+  arena.setAttribute("data-abierta","si");
+  document.body.style.overflow = "hidden";
+  pintarChips();
+  if(ORIGEN_LOCAL) aviso(AYUDA_LOCAL);
+
+  if(modo === "duelos"){ pantallaRol(); return; }
+  if(modo === "final"){     S.lista = tomarVarias(10, ["definicion"]); S.restante = 120; }
+  if(modo === "relampago"){ S.lista = tomarVarias(40, TIPOS);          S.restante = 60;  }
+  if(modo === "practica"){  S.lista = mezclar(BANCO[tipo].items.map(x=>({...x, tipo}))); }
+
+  if(modo === "final" || modo === "relampago"){
+    tGlobal = setInterval(()=>{
+      if(!S) return;
+      S.restante--;
+      if(S.restante <= 0){ clearInterval(tGlobal); finDe(modo === "final" ? "tiempo" : "listo"); }
+      else pintarMarcador();
+    }, 1000);
+  }
+  siguiente();
+}
+
+/* ---------- elegir rol ---------- */
+function pantallaRol(){
+  marcador.innerHTML = "Los diez duelos";
+  cuerpo.innerHTML =
+    '<div class="titulete"><h2>¿Cómo subís?</h2><p>Son once arriba de la plataforma. Dónde te parás cambia todo el juego.</p></div>'+
+    '<div class="roles">'+
+      '<button class="rol" data-rol="protagonista"><strong>Protagonista</strong>'+
+        '<span>Jugás desde el primer segundo. Enfrentás a los diez rivales uno atrás del otro y elegís huella cada vez que ganás. No hay descanso: el primer error te baja.</span>'+
+        '<em>Diez duelos seguidos</em></button>'+
+      '<button class="rol" data-rol="rival"><strong>Rival</strong>'+
+        '<span>Los duelos de los demás se resuelven al toque. Entras cuando te toca: si ganás, ocupás el lugar del Protagonista y seguís vos con los que quedan.</span>'+
+        '<em>Adelantamos hasta tu turno</em></button>'+
+    "</div>";
+  cuerpo.querySelectorAll("[data-rol]").forEach(b=>
+    b.addEventListener("click", ()=> armarDuelos(b.getAttribute("data-rol"))));
+  hablar("¿Subís como Protagonista o como rival?");
+}
+
+function armarDuelos(rol){
+  S.rol = rol;
+  S.lider = (rol === "protagonista") ? "vos" : "Protagonista";
+  S.elenco = mezclar(NOMBRES).slice(0, 10).map(n=>({nombre:n, vivo:true}));
+  if(rol === "rival"){
+    S.miPuesto = 2 + (Math.random()*4|0);        // entrás entre el 3.º y el 6.º duelo
+    S.elenco[S.miPuesto] = {nombre:"VOS", vivo:true, vos:true};
+  }
+  S.duelosJugados = 0;
+  S.contexto = "duelo";
+  if(rol === "protagonista"){
+    hablar("Subís como Protagonista. Diez rivales. Empezamos.", proximoDuelo);
+  }else{
+    hablar("Subís como rival. Adelantamos hasta tu turno.", adelantarHastaMiTurno);
+  }
+}
+
+function elencoHTML(){
+  if(!S.elenco) return "";
+  const items = S.elenco.map(r=>{
+    let est = r.vivo ? "" : "caido";
+    if(r.vivo && r.vos) est = (S.lider === "vos") ? "lider" : "vos";
+    if(r.vivo && r.enDuelo) est = "duelo";
+    return '<li class="actor" data-estado="'+est+'">'+r.nombre+"</li>";
+  }).join("");
+  const yo = (S.lider === "vos") ? '<li class="actor" data-estado="lider">VOS</li>' : "";
+  return '<ul class="elenco">'+yo+items+"</ul>";
+}
+
+function narrar(texto, sub, cb, espera){
+  cuerpo.innerHTML = elencoHTML() + '<div class="narra">'+texto+(sub?"<small>"+sub+"</small>":"")+"</div>";
+  pintarMarcador();
+  const seguir = ()=>{ clearTimeout(tGuion); tGuion = setTimeout(()=>{ if(S) cb && cb(); }, espera || 700); };
+  hablar(texto, seguir);
+}
+
+function proximoDuelo(){
+  if(!S) return;
+  const quedan = S.elenco.filter(r=>r.vivo);
+  if(!quedan.length){
+    if(S.lider === "vos"){ finDe("campeon"); } else { finDe("mirando"); }
+    return;
+  }
+  const rival = quedan[0];
+  const soyParte = (S.lider === "vos") || rival.vos;
+  if(!soyParte){ return adelantarHastaMiTurno(); }
+
+  S.elenco.forEach(r=> r.enDuelo = false);
+  rival.enDuelo = true;
+  S.rivalActual = rival;
+  S.duelosJugados++;
+  S.intercambio = 0;
+
+  const contra = rival.vos ? (S.lider === "Protagonista" ? "el Protagonista" : S.lider) : rival.nombre;
+  if(rival.vos){
+    narrar("Te toca a vos.", recapEspera(S.resumenEspera) + " Duelo contra " + contra + ". Si ganás, ocupás su lugar.", ()=>{ S.resumenEspera = null; turnoDe("rival"); }, 700);
+  }else{
+    narrar("Duelo " + S.duelosJugados + ": contra " + contra + ".", "Turnos alternados. El que falla, cae.", ()=>turnoDe("rival"), 700);
+  }
+}
+
+/* los duelos ajenos se resuelven sin narrarlos uno por uno */
+function adelantarHastaMiTurno(){
+  if(!S) return;
+  const caidos = [];
+  while(true){
+    const quedan = S.elenco.filter(r=>r.vivo);
+    if(!quedan.length){
+      if(S.lider === "vos"){ finDe("campeon"); } else { finDe("mirando"); }
+      return;
+    }
+    const rival = quedan[0];
+    if((S.lider === "vos") || rival.vos) break;
+    S.duelosJugados++;
+    if(Math.random() < 0.22){
+      caidos.push(S.lider === "Protagonista" ? "el Protagonista" : S.lider);
+      S.lider = rival.nombre;
+      rival.vivo = false;
+    }else{
+      caidos.push(rival.nombre);
+      rival.vivo = false;
+    }
+  }
+  S.resumenEspera = caidos;
+  proximoDuelo();
+}
+function recapEspera(caidos){
+  if(!caidos || !caidos.length) return "Entrás de una.";
+  const n = caidos.length;
+  const lista = caidos.join(", ");
+  const lider = S.lider === "Protagonista" ? "El Protagonista sigue arriba." : "Ahora conduce " + S.lider + ".";
+  return "Mientras esperabas cayeron " + n + ": " + lista + ". " + lider;
+}
+
+/* turnos alternados dentro de un duelo */
+function turnoDe(quien){
+  if(!S) return;
+  if(quien === "vos"){ S.lista = [tomar(TIPOS[Math.random()*TIPOS.length|0])]; S.i = 0; siguiente(); return; }
+  const yoLider = (S.lider === "vos");
+  const nombre = yoLider ? S.rivalActual.nombre : "el Protagonista";
+  S.intercambio++;
+  const p = Math.min(0.24 + 0.13*S.intercambio, 0.7);
+  narrar("Le toca a " + nombre + ".", "Escuchá cómo le va.", ()=>{
+    if(Math.random() < p){
+      if(yoLider){
+        narrar("Falla " + nombre + ". Cae.", "Ganaste el duelo.", ()=> ganasteDuelo(false), 1000);
+      }else{
+        narrar("Falla el Protagonista.", "Ocupás su lugar: de acá en más seguís vos con los que quedan.", ()=> ganasteDuelo(true), 1500);
+      }
+    }else{
+      narrar(nombre + " la tiene.", "Vuelve a vos.", ()=> turnoDe("vos"), 800);
+    }
+  }, 1500);
+}
+function ganasteDuelo(ascendes){
+  if(!S) return;
+  S.ascendio = !!ascendes;
+  if(ascendes) S.lider = "vos";
+  elegirHuella();
+}
+
+function pintarMarcador(){
+  if(!S) return;
+  const m = {final:"El final", duelos:"Los diez duelos", relampago:"Relámpago", practica:(BANCO[S.tipo]||{}).nombre}[S.modo];
+  let txt = m + " · ";
+  if(S.modo === "final")          txt += "<b>"+S.bien+"/10</b> · reloj <b>"+Math.max(S.restante,0)+"s</b>";
+  else if(S.modo === "duelos")    txt += (S.lider === "vos" ? "sos <b>Protagonista</b>" : "sos <b>rival</b>") + " · quedan <b>"+(S.elenco?S.elenco.filter(r=>r.vivo).length:0)+"</b> · pozo <b>"+plata(S.pozo)+"</b>";
+  else if(S.modo === "relampago") txt += "<b>"+S.bien+"</b> aciertos · reloj <b>"+Math.max(S.restante,0)+"s</b>";
+  else                            txt += "<b>"+S.bien+"/"+S.i+"</b> en esta sesión";
+  marcador.innerHTML = txt;
+}
+
+/* ===================== PRESENTAR CONSIGNA ===================== */
+function siguiente(){
+  if(!S) return;
+  clearInterval(tPregunta); pararEscucha();
+  if(S.contexto !== "duelo" && S.i >= S.lista.length){ finDe("listo"); return; }
+  S.item = S.lista[S.i % S.lista.length];
+  S.bloqueado = false; S.fichas = [];
+  pintarMarcador();
+
+  const it = S.item, j = BANCO[it.tipo];
+  const conReloj = (S.modo === "duelos");
+
+  let extra = "", control = "";
+  if(it.tipo === "incompleta") extra = '<p class="pista">'+enmascarar(it.r[0])+"</p>";
+  if(it.tipo === "anagrama")   extra = '<p class="pista">'+desordenar(it.r[0])+"</p>";
+  if(it.tipo === "categoria")  extra = '<p class="aclara">Decilos o escribilos de a uno. Necesitás '+it.n+".</p>";
+
+  if(it.tipo === "vf"){
+    control = '<div class="opciones"><button class="opcion" data-op="1">Verdadero</button><button class="opcion" data-op="0">Falso</button></div>';
+  }else if(it.tipo === "opcion"){
+    control = '<div class="opciones">'+ it.o.map((o,k)=>'<button class="opcion" data-op="'+k+'">'+"ABCD"[k]+". "+o+"</button>").join("") +"</div>";
+  }else{
+    control = '<div class="responder"><input type="text" id="rta" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="'+
+      (it.tipo === "categoria" ? "Decilo o escribilo y Enter" : "Decilo o escribilo") + '" aria-label="Tu respuesta">'+
+      '<button class="btn" id="btnRta">'+(it.tipo === "categoria" ? "Sumar" : "Responder")+"</button></div>"+
+      '<div class="fichas" id="fichas"></div>';
+  }
+
+  const encabezado = (S.contexto === "duelo")
+    ? elencoHTML()
+    : "";
+
+  cuerpo.innerHTML = encabezado +
+    '<div class="ronda" id="ronda">'+
+      '<div class="ronda__meta"><span class="ronda__juego">'+j.nombre+"</span>"+
+      '<span class="reloj" id="reloj">'+(conReloj?"15s":"—")+"</span></div>"+
+      '<div class="barra"><div class="barra__lleno" id="barra"></div></div>'+
+      '<p class="consigna">'+it.p+"</p>"+ extra + control +
+      '<p class="dicho" id="dicho"></p>'+
+      '<p class="veredicto" id="veredicto" role="status" aria-live="polite"></p>'+
+    "</div>";
+
+  if(it.tipo === "vf" || it.tipo === "opcion"){
+    cuerpo.querySelectorAll(".opcion").forEach(b=>
+      b.addEventListener("click", ()=> resolver(+b.getAttribute("data-op"), b)));
+  }else{
+    const inp = $("#rta");
+    const mandar = ()=>{ if(it.tipo === "categoria") sumarFicha(inp.value, inp); else resolver(inp.value); };
+    $("#btnRta").addEventListener("click", mandar);
+    inp.addEventListener("keydown", e=>{ if(e.key === "Enter"){ e.preventDefault(); mandar(); }});
+    if(!vozEntrada) inp.focus();
+  }
+
+  // el micrófono se abre junto con la lectura: podés cortarla y contestar antes
+  let arrancado = false;
+  const arrancar = ()=>{
+    if(arrancado || !S || S.bloqueado || S.item !== it) return;
+    arrancado = true;
+    if(conReloj){
+      S.restante = 15; tick(15);
+      tPregunta = setInterval(()=>{
+        if(!S) return;
+        S.restante--; tick(15);
+        if(S.restante <= 0){ clearInterval(tPregunta); resolver(null); }
+      }, 1000);
+    }else{
+      const b = $("#barra"); if(b) b.style.width = "100%";
+    }
+  };
+  const cortar = ()=>{ callar(); arrancar(); };
+  const campo = $("#rta");
+  if(campo) campo.addEventListener("input", cortar, {once:true});
+  cuerpo.querySelectorAll(".opcion").forEach(b=> b.addEventListener("mousedown", cortar, {once:true}));
+  abrirMicro(it, cortar);
+  if(vozSalida) hablar(guion(it), arrancar); else arrancar();
+}
+
+function abrirMicro(it, cortar){
+  if(!vozEntrada || !SRClass) return;
+  const leido = norm(guion(it));
+  const esEco = t => (vozSalida && TTS && TTS.speaking && norm(t).length > 3 && leido.indexOf(norm(t)) >= 0);
+  const eco = t => { const d = $("#dicho"); if(d) d.textContent = "🎙 " + t; };
+  const alEmpezar = t => { if(esEco(t)) return; cortar && cortar(); eco(t); };
+
+  if(it.tipo === "categoria"){
+    escuchar(alts=>{ if(esEco(alts[0])) return; cortar&&cortar(); eco(alts[0]); alts.forEach(a=> sumarFicha(a)); }, true, alEmpezar);
+  }else if(it.tipo === "vf"){
+    escuchar(alts=>{
+      if(esEco(alts[0])) return;
+      cortar && cortar(); eco(alts[0]);
+      const v = " " + alts.map(a=>norm(a)).join(" ") + " ";
+      if(/verdadero|cierto|verdad|\bsi\b/.test(v)) resolver(1, cuerpo.querySelector('[data-op="1"]'));
+      else if(/falso|mentira|\bno\b/.test(v)) resolver(0, cuerpo.querySelector('[data-op="0"]'));
+    }, false, alEmpezar);
+  }else if(it.tipo === "opcion"){
+    escuchar(alts=>{
+      if(esEco(alts[0])) return;
+      cortar && cortar(); eco(alts[0]);
+      for(const a of alts){
+        const t = norm(a).replace(/^(opcion|la|letra)\s+/,"");
+        let k = ["a","b","c","d"].indexOf(t);
+        if(k < 0) k = ["a","be","ce","de"].indexOf(t);
+        if(k < 0) k = it.o.findIndex(o => norm(o) === t || (t.length > 3 && norm(o).indexOf(t) >= 0));
+        if(k >= 0){ resolver(k, cuerpo.querySelectorAll(".opcion")[k]); return; }
+      }
+    }, false, alEmpezar);
+  }else{
+    escuchar(alts=>{
+      if(esEco(alts[0])) return;
+      cortar && cortar(); eco(alts[0]);
+      const inp = $("#rta"); if(inp) inp.value = alts[0];
+      resolver(alts);
+    }, false, alEmpezar);
+  }
+}
+
+function tick(total){
+  const el = $("#reloj"), ba = $("#barra");
+  if(!el || !ba) return;
+  const urg = S.restante <= 5 ? "si" : "no";
+  el.textContent = Math.max(S.restante,0)+"s"; el.setAttribute("data-urgente", urg);
+  ba.style.width = Math.max(S.restante,0)/total*100+"%"; ba.setAttribute("data-urgente", urg);
+}
+
+function sumarFicha(texto, inp){
+  if(!S || S.bloqueado) return;
+  const it = S.item;
+  if(inp) inp.value = "";
+  const cands = variantes(texto || "");
+  let hit = null;
+  for(const v of cands){ hit = it.r.find(r => norm(r) === v); if(hit) break; }
+  if(!hit) return;
+  if(S.fichas.some(f => norm(f) === norm(hit))) return;
+  S.fichas.push(hit);
+  const cont = $("#fichas");
+  if(cont) cont.innerHTML = S.fichas.map(f=>'<span class="ficha">'+f+"</span>").join("");
+  if(S.fichas.length >= it.n) resolver("__cat__");
+}
+
+/* ===================== RESOLVER ===================== */
+function resolver(valor, boton){
+  if(!S || S.bloqueado) return;
+  S.bloqueado = true;
+  clearInterval(tPregunta); pararEscucha();
+  const it = S.item;
+  let ok = false;
+
+  if(it.tipo === "vf")            ok = (valor === (it.v ? 1 : 0));
+  else if(it.tipo === "opcion")   ok = (valor === it.i);
+  else if(it.tipo === "categoria")ok = (S.fichas.length >= it.n);
+  else if(Array.isArray(valor))   ok = aciertaDicho(valor, it);
+  else                            ok = (valor !== null && acierta(valor, it));
+
+  anotar(it.tipo, ok);
+  S.i++; if(ok) S.bien++;
+
+  let correcta;
+  if(it.tipo === "vf")             correcta = (it.v ? "Verdadero" : "Falso") + (it.n ? " — "+it.n : "");
+  else if(it.tipo === "opcion")    correcta = it.o[it.i];
+  else if(it.tipo === "categoria") correcta = "Servían, por ejemplo: " + it.r.slice(0,4).join(", ");
+  else                             correcta = respuestaVisible(it);
+  if(!ok) S.fallos.push({p:it.p, r:correcta});
+
+  if(it.tipo === "vf" || it.tipo === "opcion"){
+    const btns = [...cuerpo.querySelectorAll(".opcion")];
+    const idxOk = it.tipo === "vf" ? (it.v ? 0 : 1) : it.i;
+    if(btns[idxOk]) btns[idxOk].setAttribute("data-estado","bien");
+    if(!ok && boton) boton.setAttribute("data-estado","mal");
+    btns.forEach(b=> b.disabled = true);
+  }
+
+  const v = $("#veredicto");
+  const dichoOk = ok ? elogio() : (valor === null ? "Se acabó el tiempo." : "No.");
+  if(v){
+    v.setAttribute("data-tipo", ok ? "bien" : "mal");
+    v.innerHTML = dichoOk + ' <small>' + correcta + "</small>";
+  }
+
+  const cae = !ok && (S.modo === "duelos" || S.modo === "final");
+  if(cae) setTimeout(()=>{ const r = $("#ronda"); if(r) r.setAttribute("data-cae","si"); }, 650);
+
+  const base = (it.tipo === "vf" || it.tipo === "opcion" || it.tipo === "categoria") ? 1700 : 1250;
+  const espera = cae ? base + 800 : base;
+
+  hablar(dichoOk + " " + (ok ? "" : correcta), null, 1.06);
+
+  clearTimeout(tGuion);
+  tGuion = setTimeout(()=>{
+    if(!S) return;
+    if(!ok){
+      if(S.modo === "duelos" || S.modo === "final"){ finDe("caida"); return; }
+      siguiente(); return;
+    }
+    if(S.contexto === "duelo"){ turnoDe("rival"); return; }
+    siguiente();
+  }, espera);
+}
+function elogio(){
+  const e = ["Bien ahí.","Seguís arriba.","Firme.","Esa la tenías.","Sin dudar.","Correcto."];
+  return e[Math.random()*e.length|0];
+}
+
+/* ===================== HUELLA ===================== */
+function elegirHuella(){
+  if(!S) return;
+  const montos = [1, 500, 2500, 7000, 15000, 30000, 50000, 75000, 100000];
+  const a = montos[Math.random()*montos.length|0];
+  const b = montos[Math.random()*montos.length|0];
+  cuerpo.innerHTML = elencoHTML() +
+    '<div class="ronda"><div class="ronda__meta"><span class="ronda__juego">Ganaste el duelo</span>'+
+    '<span class="reloj">Pozo '+plata(S.pozo)+"</span></div>"+
+    '<p class="consigna">Elegí una huella. Ninguna de las dos dice cuánto esconde.</p>'+
+    '<div class="huellas">'+
+      '<button class="huella huella--blanca" data-m="'+a+'">Huella blanca</button>'+
+      '<button class="huella huella--negra" data-m="'+b+'">Huella negra</button>'+
+    '</div><p class="dicho" id="dicho"></p><p class="veredicto" id="veredicto" role="status" aria-live="polite"></p></div>';
+
+  const tomarHuella = m=>{
+    S.pozo += m;
+    cuerpo.querySelectorAll(".huella").forEach(x=>{
+      x.disabled = true; x.setAttribute("data-revelada","si");
+      x.textContent = plata(+x.getAttribute("data-m"));
+    });
+    const frase = "Sumaste " + plata(m) + ".";
+    $("#veredicto").setAttribute("data-tipo","bien");
+    $("#veredicto").innerHTML = frase + " <small>Pozo: " + plata(S.pozo) + "</small>";
+    pintarMarcador(); pararEscucha();
+    hablar(frase);
+    clearTimeout(tGuion);
+    tGuion = setTimeout(()=>{
+      if(!S) return;
+      if(S.ascendio){
+        // eras rival y le ganaste al Protagonista: dejás la fila y pasás a conducir el juego
+        S.elenco = S.elenco.filter(r=> !r.vos);
+        S.ascendio = false;
+      }else if(S.rivalActual){
+        S.rivalActual.vivo = false;
+      }
+      S.elenco.forEach(r=> r.enDuelo = false);
+      proximoDuelo();
+    }, 2000);
+  };
+
+  cuerpo.querySelectorAll(".huella").forEach(h=>
+    h.addEventListener("click", ()=> tomarHuella(+h.getAttribute("data-m"))));
+
+  hablar("Ganaste el duelo. Elegí huella: blanca o negra.", ()=>{
+    if(!vozEntrada) return;
+    escuchar(alts=>{
+      const t = alts.map(x=>norm(x)).join(" ");
+      if(/blanca/.test(t)) tomarHuella(a);
+      else if(/negra/.test(t)) tomarHuella(b);
+    });
+  });
+}
+
+/* ===================== FINAL ===================== */
+function finDe(motivo){
+  clearInterval(tGlobal); clearInterval(tPregunta); clearTimeout(tGuion);
+  pararEscucha();
+  if(!S) return;
+  let titulo, cifra, texto;
+
+  if(S.modo === "final"){
+    const perfecto = S.bien === 10;
+    titulo = perfecto ? "Duplicaste" : (motivo === "tiempo" ? "Se acabaron los dos minutos" : "Caíste en el final");
+    cifra = S.bien + "/10";
+    texto = perfecto
+      ? "Diez de diez dentro del tiempo. Así se duplica el pozo."
+      : "En el estudio hace falta el pleno: las diez, seguidas, en dos minutos. Anotá las que fallaste y volvé a tirar.";
+  }else if(S.modo === "duelos"){
+    if(motivo === "campeon"){
+      titulo = "Quedaste último en pie";
+      cifra = plata(S.pozo);
+      texto = "Limpiaste la plataforma. Con ese pozo se va al final.";
+    }else if(motivo === "mirando"){
+      titulo = "Terminó sin vos";
+      cifra = plata(S.pozo);
+      texto = "Los duelos se resolvieron antes de que te tocara. Volvé a subir y probá suerte con el orden.";
+    }else{
+      titulo = "Se abrió la compuerta";
+      cifra = plata(S.pozo);
+      texto = "Ganaste " + S.bien + " consignas antes de caer. El pozo se pierde con la caída.";
+    }
+  }else if(S.modo === "relampago"){
+    titulo = "Sesenta segundos"; cifra = S.bien + " aciertos";
+    texto = "Sin caídas, todo velocidad. Repetilo hasta que el número deje de subir.";
+  }else{
+    titulo = "Terminaste la tanda"; cifra = S.bien + "/" + S.i;
+    texto = "Recorriste todas las consignas de " + BANCO[S.tipo].nombre.toLowerCase() + " que hay cargadas.";
+  }
+
+  const lista = S.fallos.length
+    ? '<ul class="fallados">'+S.fallos.slice(0,12).map(f=>"<li><b>"+f.p+"</b> → "+f.r+"</li>").join("")+"</ul>"
+    : "";
+
+  cuerpo.innerHTML =
+    '<div class="resumen"><h2>'+titulo+"</h2>"+
+    '<p class="cifra">'+cifra+"</p><p class=\"plomo\">"+texto+"</p>"+ lista +
+    '<div class="acciones"><button class="btn" id="otra">Otra vez</button>'+
+    '<button class="btn btn--fantasma" id="salir">Volver</button></div></div>';
+  $("#otra").addEventListener("click", ()=>{ const m = S.modo, t = S.tipo; cerrarArena(); abrirArena(m, t); });
+  $("#salir").addEventListener("click", cerrarArena);
+  marcador.innerHTML = "";
+  hablar(titulo + ". " + cifra.replace("/", " de "));
+}
+
+cargarStats();
+pintarChips();
+</script>
+</body>
+</html>
