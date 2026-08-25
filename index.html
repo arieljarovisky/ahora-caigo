@@ -197,6 +197,12 @@ section{padding:76px 0}
 .chip:hover:not(:disabled){color:var(--blanco);border-color:var(--blanco)}
 .chip[data-on="si"]{background:var(--foco);color:#120C00;border-color:var(--foco)}
 .chip:disabled{opacity:.35;cursor:not-allowed}
+.selVoz{
+  background:#080C22;color:var(--blanco);border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;padding:8px 12px;font-family:var(--cuerpo);font-size:.78rem;font-weight:600;
+  max-width:190px;cursor:pointer;
+}
+.selVoz:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
 .punto{width:8px;height:8px;border-radius:50%;background:currentColor;flex:none}
 .chip[data-escuchando="si"] .punto{background:var(--magenta);animation:latir 1s infinite}
 @keyframes latir{50%{transform:scale(1.7);opacity:.5}}
@@ -360,6 +366,7 @@ footer{border-top:1px solid rgba(255,255,255,.1);padding:34px 0 60px;color:#7C86
     <span class="marcador" id="marcador"></span>
     <div class="vozbar">
       <button class="chip" id="chipHabla" data-on="no" aria-pressed="false"><span class="punto"></span>Que me lea</button>
+      <select class="selVoz" id="selVoz" aria-label="Voz del conductor" hidden></select>
       <button class="chip" id="chipEscucha" data-on="no" aria-pressed="false"><span class="punto"></span>Contesto hablando</button>
       <button class="cerrar" id="btnCerrar">Salir</button>
     </div>
@@ -1032,13 +1039,39 @@ const MIC_POSIBLE = !!SRClass;
 const AYUDA_LOCAL = "Chrome no puede recordar el permiso de micrófono en archivos abiertos con doble clic: te lo va a preguntar cada vez. Para que quede fijo, abrí una terminal en la carpeta, corré  python -m http.server 8000  y entrá a http://localhost:8000.";
 let vozSalida = false, vozEntrada = false;
 let voces = [], vozEs = null, rec = null, recActivo = false;
+const VOZ_GUARDADA = "ahora-caigo-voz";
 
+function puntuarVoz(v){
+  const n = ((v.name||"")+" "+(v.lang||"")).toLowerCase();
+  let p = 0;
+  if(/es[-_]ar/i.test(v.lang) || /argentin/i.test(n)) p += 90;
+  else if(/es[-_](419|uy|cl|mx|us|co|pe)/i.test(v.lang)) p += 45;
+  else if(/^es/i.test(v.lang) || /spanish|español/i.test(n)) p += 20;
+  else return -1;
+  if(/male|hombre|raul|pablo|jorge|tomas|tomás|diego|carlos|santiago|mateo|gonzalo|antonio/i.test(n)) p += 55;
+  if(/female|mujer|sabina|helena|elena|lucia|lucía|laura|paulina|dalia|maria|maría|catalina|sofia|sofía/i.test(n)) p -= 35;
+  if(/natural|neural|online|google|premium/i.test(n)) p += 12;
+  return p;
+}
 function cargarVoces(){
   if(!TTS) return;
-  voces = TTS.getVoices() || [];
-  vozEs = voces.find(v=>/es[-_]AR/i.test(v.lang))
-       || voces.find(v=>/es[-_](419|MX|US|CL|UY|CO)/i.test(v.lang))
-       || voces.find(v=>/^es/i.test(v.lang)) || null;
+  voces = (TTS.getVoices() || []).filter(v=>puntuarVoz(v) >= 0)
+    .sort((a,b)=>puntuarVoz(b)-puntuarVoz(a));
+  const sel = $("#selVoz");
+  if(!voces.length){
+    vozEs = (TTS.getVoices()||[])[0] || null;
+    if(sel) sel.hidden = true;
+    return;
+  }
+  const guardada = localStorage.getItem(VOZ_GUARDADA);
+  vozEs = voces.find(v=>v.name === guardada) || voces[0];
+  if(sel){
+    sel.hidden = false;
+    const actual = sel.value;
+    sel.innerHTML = voces.map(v=>'<option value="'+v.name.replace(/"/g,"")+'">'+v.name+"</option>").join("");
+    sel.value = (guardada && voces.some(v=>v.name===guardada)) ? guardada
+              : (actual && voces.some(v=>v.name===actual) ? actual : vozEs.name);
+  }
 }
 if(TTS){ cargarVoces(); TTS.addEventListener("voiceschanged", cargarVoces); }
 
@@ -1046,13 +1079,14 @@ function hablar(texto, cb, rate){
   if(!vozSalida || !TTS){ setTimeout(()=>cb&&cb(), 120); return; }
   try{ TTS.cancel(); }catch(e){}
   const u = new SpeechSynthesisUtterance(texto);
-  if(vozEs){ u.voice = vozEs; u.lang = vozEs.lang; } else { u.lang = "es-AR"; }
-  u.rate = rate || 1.03;
+  if(vozEs){ u.voice = vozEs; u.lang = vozEs.lang || "es-AR"; } else { u.lang = "es-AR"; }
+  u.rate = rate || 1.12;
+  u.pitch = 1.12;
   let cerrado = false;
   const fin = ()=>{ if(cerrado) return; cerrado = true; cb && cb(); };
   u.onend = fin; u.onerror = fin;
   try{ TTS.speak(u); }catch(e){ fin(); return; }
-  setTimeout(fin, Math.min(900 + texto.length*100, 16000));
+  setTimeout(fin, Math.min(900 + texto.length*90, 16000));
 }
 function callar(){ if(TTS){ try{ TTS.cancel(); }catch(e){} } }
 
@@ -1075,6 +1109,12 @@ $("#chipHabla").addEventListener("click", ()=>{
   vozSalida = !vozSalida; pintarChips();
   if(vozSalida){ aviso(""); hablar("Listo. Te leo las consignas."); }
   else callar();
+});
+$("#selVoz").addEventListener("change", ()=>{
+  const nombre = $("#selVoz").value;
+  vozEs = voces.find(v=>v.name === nombre) || vozEs;
+  try{ localStorage.setItem(VOZ_GUARDADA, nombre); }catch(e){}
+  if(vozSalida) hablar("Esta voz, de acá en más.");
 });
 $("#chipEscucha").addEventListener("click", ()=>{
   if(!SRClass){ aviso("Tu navegador no tiene dictado por voz. Probá con Chrome o Edge."); return; }
